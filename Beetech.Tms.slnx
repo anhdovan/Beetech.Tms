@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="Beetech.Tms.Common/Beetech.Tms.Common.csproj" />
+  <Project Path="Beetech.Tms.Core/Beetech.Tms.Core.csproj" />
+  <Project Path="Beetech.Tms.Web/Beetech.Tms.Web.csproj" />
+</Solution>

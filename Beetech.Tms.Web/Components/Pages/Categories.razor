@@ -1,0 +1,82 @@
+
+
+@page "/categories"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Manager")]
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<PageTitle>Categories - Beetech TMS</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="Categories" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add_circle_outline" Text="Add Category" Click="@OnAddCategory" />
+</RadzenStack>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="10" AllowPaging="true" 
+                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@categories" TItem="Category" ColumnWidth="300px">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="Name" Title="Name" />
+        <RadzenDataGridColumn Property="Description" Title="Description" />
+        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true">
+            <Template Context="category">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => EditCategory(category))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => OnDeleteCategory(category))" @onclick:stopPropagation="true" />
+                </RadzenStack>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Category> grid = null!;
+    IEnumerable<Category> categories = new List<Category>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        categories = await TmsService.GetCategoriesAsync();
+    }
+
+    async Task OnAddCategory()
+    {
+        await EditCategory(new Category());
+    }
+
+    async Task EditCategory(Category category)
+    {
+        var result = await DialogService.OpenAsync<CategoryEditDialog>(category.Id == 0 ? "Add Category" : "Edit Category",
+            new Dictionary<string, object> { { "Category", category } }, new DialogOptions());
+
+        if (result == true)
+        {
+            await LoadData();
+            if (grid != null) await grid.Reload();
+        }
+    }
+
+    async Task OnDeleteCategory(Category category)
+    {
+        var confirm = await DialogService.Confirm($"Are you sure you want to delete category '{category.Name}'?", "Delete Category");
+        if (confirm == true)
+        {
+            var success = await TmsService.DeleteCategoryAsync(category.Id);
+            if (success)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Category deleted" });
+                await LoadData();
+                if (grid != null) await grid.Reload();
+            }
+        }
+    }
+}

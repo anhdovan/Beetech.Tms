@@ -1,0 +1,70 @@
+@using Beetech.Tms.Core.Models
+@using Beetech.Tms.Web.Services
+@inject TmsService TmsService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenTemplateForm TItem="Location" Data="@Location" Submit="@OnSubmit">
+    <RadzenStack Gap="1rem">
+        <RadzenFieldset Text="Location Details">
+            <RadzenStack Gap="1rem">
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Name" Component="Name" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Location.Name" Name="Name" />
+                        <RadzenRequiredValidator Component="Name" Text="Name is required" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Type" Component="Type" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown style="display: block; width: 100%;" TValue="LocationType" 
+                                        Data="@(Enum.GetValues(typeof(LocationType)))" @bind-Value="@Location.Type" Name="Type" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Description" Component="Description" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextArea style="display: block; width: 100%;" @bind-Value="@Location.Description" Name="Description" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Active" Component="IsActive" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenCheckBox @bind-Value="@Location.IsActive" Name="IsActive" />
+                    </div>
+                </div>
+            </RadzenStack>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Icon="save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@((args) => DialogService.Close(false))" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Location Location { get; set; } = new();
+
+    async Task OnSubmit(Location location)
+    {
+        var success = await TmsService.UpsertLocationAsync(location);
+        if (success)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Location saved successfully" });
+            DialogService.Close(true);
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Failed to save location" });
+        }
+    }
+}

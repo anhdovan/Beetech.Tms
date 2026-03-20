@@ -1,0 +1,95 @@
+@using Beetech.Tms.Core.Models
+@using Beetech.Tms.Web.Services
+@inject TmsService TmsService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenTemplateForm TItem="TextileItem" Data="@Item" Submit="@OnSubmit">
+    <RadzenStack Gap="1rem">
+        <RadzenFieldset Text="Item Details">
+            <RadzenStack Gap="1rem">
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Category" Component="CategoryId" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown style="display: block; width: 100%;" TValue="int" Data="@categories" 
+                                        TextProperty="Name" ValueProperty="Id" @bind-Value="@Item.CategoryId" Name="CategoryId" />
+                        <RadzenRequiredValidator Component="CategoryId" DefaultValue="0" Text="Category is required" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Status" Component="Status" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown style="display: block; width: 100%;" TValue="ItemStatus" 
+                                        Data="@(Enum.GetValues(typeof(ItemStatus)))" @bind-Value="@Item.Status" Name="Status" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Location" Component="CurrentLocationId" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown style="display: block; width: 100%;" TValue="int?" Data="@locations" 
+                                        TextProperty="Name" ValueProperty="Id" @bind-Value="@Item.CurrentLocationId" Name="CurrentLocationId" 
+                                        AllowClear="true" Placeholder="Select Location..." />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Department" Component="CurrentDepartmentId" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenDropDown style="display: block; width: 100%;" TValue="int?" Data="@departments" 
+                                        TextProperty="Name" ValueProperty="Id" @bind-Value="@Item.CurrentDepartmentId" Name="CurrentDepartmentId" 
+                                        AllowClear="true" Placeholder="Select Department..." />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Wash Count" Component="WashCount" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenNumeric style="display: block; width: 100%;" @bind-Value="@Item.WashCount" Name="WashCount" Min="0" />
+                    </div>
+                </div>
+            </RadzenStack>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Icon="save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@((args) => DialogService.Close(false))" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public TextileItem Item { get; set; } = new();
+    
+    List<Category> categories = new();
+    List<Location> locations = new();
+    List<Department> departments = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        categories = await TmsService.GetCategoriesAsync();
+        locations = await TmsService.GetLocationsAsync();
+        departments = await TmsService.GetDepartmentsAsync();
+    }
+
+    async Task OnSubmit()
+    {
+        Item.LastScanAt = DateTime.UtcNow;
+        var success = await TmsService.UpsertItemAsync(Item);
+        if (success)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Item registered/updated successfully" });
+            DialogService.Close(true);
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Failed to save item" });
+        }
+    }
+}

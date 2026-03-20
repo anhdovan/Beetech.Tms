@@ -1,0 +1,67 @@
+@inherits LayoutComponentBase
+@using Microsoft.AspNetCore.Components.Authorization
+
+<RadzenLayout class="@(sidebarExpanded ? "sidebar-expanded" : "sidebar-collapsed")">
+    <RadzenHeader Style="background-color: #1b6ec2;">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" Gap="0" class="rz-px-4" style="height: 50px;">
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                <RadzenSidebarToggle Click="@(() => sidebarExpanded = !sidebarExpanded)" />
+                <img src="images/logo_beetech.png" style="height: 30px;" alt="Beetech Logo" />
+                <RadzenText Text="Beetech TMS f1.0" TextStyle="TextStyle.H6" class="rz-m-0" style="font-weight: 700; color: white !important;" />
+            </RadzenStack>
+            <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                <AuthorizeView>
+                    <Authorized>
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                            <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="@context.User.Identity?.Name" />
+                            <RadzenButton Icon="logout" Text="Logout" 
+                                          Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" 
+                                          Click="@Logout" Style="color: white !important;" />
+                        </RadzenStack>
+                    </Authorized>
+                    <NotAuthorized>
+                        <RadzenButton Icon="login" Text="Login" Click="@(() => NavigationManager.NavigateTo("login"))" 
+                                      Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="color: white !important;" />
+                    </NotAuthorized>
+                </AuthorizeView>
+            </RadzenStack>
+        </RadzenStack>
+    </RadzenHeader>
+
+    <RadzenSidebar @bind-Expanded="@sidebarExpanded">
+        <RadzenPanelMenu>
+            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="" Match="NavLinkMatch.All" />
+            <AuthorizeView Roles="Admin,Manager,Operator">
+                <RadzenPanelMenuItem Text="Textile Items" Icon="tag" Path="items" />
+                <RadzenPanelMenuItem Text="Categories" Icon="category" Path="categories" />
+                <RadzenPanelMenuItem Text="Locations" Icon="place" Path="locations" />
+                <RadzenPanelMenuItem Text="Departments" Icon="people" Path="departments" />
+                <RadzenPanelMenuItem Text="Transactions" Icon="swap_horiz" Path="transactions" />
+            </AuthorizeView>
+        </RadzenPanelMenu>
+    </RadzenSidebar>
+
+    <RadzenBody>
+        <div class="rz-p-4 rz-p-md-6">
+            <RadzenComponents />
+            @Body
+        </div>
+    </RadzenBody>
+
+    <RadzenFooter Style="height: 50px; display: flex; align-items: center; justify-content: center; background-color: #f8f9fa; border-top: 1px solid #dee2e6;">
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+            <img src="images/logo_beetech.png" style="height: 24px; opacity: 0.6;" alt="Beetech Logo" />
+            <RadzenText Text="&copy; 2026 Beetech Solution" TextStyle="TextStyle.Caption" Style="color: #6c757d; font-weight: 600;" />
+        </RadzenStack>
+    </RadzenFooter>
+</RadzenLayout>
+
+@code {
+    bool sidebarExpanded = true;
+    [Inject] NavigationManager NavigationManager { get; set; } = null!;
+
+    void Logout()
+    {
+        NavigationManager.NavigateTo("api/account/logout", true);
+    }
+}

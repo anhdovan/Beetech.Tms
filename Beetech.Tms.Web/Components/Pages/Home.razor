@@ -1,0 +1,107 @@
+@page "/"
+@using Beetech.Tms.Web.Services
+@using Beetech.Tms.Core.Models
+@inject TmsService TmsService
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Authorization
+@using Radzen
+@using Radzen.Blazor
+
+<PageTitle>Dashboard - Beetech TMS</PageTitle>
+
+<RadzenText Text="Dashboard" TextStyle="TextStyle.H4" class="rz-mb-6" />
+
+<div class="container-fluid">
+    @if (stats == null)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <div class="row mb-4">
+            <div class="col-md-3">
+                <RadzenCard class="rz-p-4 border-t-4 border-blue-600">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenStack Gap="0">
+                            <RadzenText Text="@stats.TotalItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
+                            <RadzenText Text="Total Items" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                        </RadzenStack>
+                        <RadzenIcon Icon="inventory" IconColor="var(--rz-primary)" style="font-size: 2rem; opacity: 0.2;" />
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+            <div class="col-md-3">
+                <RadzenCard class="rz-p-4 border-t-4 border-green-600">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenStack Gap="0">
+                            <RadzenText Text="@stats.AvailableItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
+                            <RadzenText Text="Available" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                        </RadzenStack>
+                        <RadzenIcon Icon="check_circle" IconColor="var(--rz-success)" style="font-size: 2rem; opacity: 0.2;" />
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+            <div class="col-md-3">
+                <RadzenCard class="rz-p-4 border-t-4 border-yellow-500">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenStack Gap="0">
+                            <RadzenText Text="@stats.InUseItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
+                            <RadzenText Text="In Use" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                        </RadzenStack>
+                        <RadzenIcon Icon="sync" IconColor="var(--rz-warning)" style="font-size: 2rem; opacity: 0.2;" />
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+            <div class="col-md-3">
+                <RadzenCard class="rz-p-4 border-t-4 border-red-600">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenStack Gap="0">
+                            <RadzenText Text="@stats.CondemnedItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
+                            <RadzenText Text="Condemned" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                        </RadzenStack>
+                        <RadzenIcon Icon="dangerous" IconColor="var(--rz-danger)" style="font-size: 2rem; opacity: 0.2;" />
+                    </RadzenStack>
+                </RadzenCard>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <RadzenCard class="rz-p-4" style="height: 400px;">
+                    <RadzenText Text="Items by Category" TextStyle="TextStyle.H6" class="rz-mb-4" />
+                    <RadzenChart>
+                        <RadzenDonutSeries Data="@categoryData" CategoryProperty="Category" ValueProperty="Count" Title="Items" />
+                    </RadzenChart>
+                </RadzenCard>
+            </div>
+            <div class="col-md-6">
+                <RadzenCard class="rz-p-4" style="height: 400px;">
+                    <RadzenText Text="Recent Activities" TextStyle="TextStyle.H6" class="rz-mb-4" />
+                    <RadzenText Text="Coming soon: Transaction history chart" class="rz-mt-10 opacity-50 text-center" />
+                </RadzenCard>
+            </div>
+        </div>
+    }
+</div>
+
+@code {
+    DashboardStats? stats;
+    List<CategoryStat> categoryData = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        stats = await TmsService.GetDashboardStatsAsync();
+        
+        var categories = await TmsService.GetCategoriesAsync();
+        categoryData = categories.Select(c => new CategoryStat { 
+            Category = c.Name, 
+            Count = c.Items.Count 
+        }).ToList();
+    }
+
+    class CategoryStat
+    {
+        public string Category { get; set; } = "";
+        public int Count { get; set; }
+    }
+}

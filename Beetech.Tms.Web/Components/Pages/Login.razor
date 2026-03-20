@@ -1,0 +1,69 @@
+@page "/login"
+@layout EmptyLayout
+@using Microsoft.AspNetCore.Components.Authorization
+@inject NavigationManager NavigationManager
+
+<PageTitle>Login - Beetech TMS</PageTitle>
+
+<div class="login-container">
+    <RadzenCard class="rz-my-12 rz-mx-auto rz-p-12 login-card" style="max-width: 450px;">
+        <RadzenStack AlignItems="AlignItems.Center" Gap="2rem">
+            <RadzenImage Path="favicon.png" Style="width: 80px;" />
+            <RadzenText TextStyle="TextStyle.H4" Text="Beetech TMS" />
+            
+            @if (errorMessage != null)
+            {
+                <RadzenAlert AlertStyle="AlertStyle.Danger" Variant="Variant.Flat" Shade="Shade.Lighter">
+                    @errorMessage
+                </RadzenAlert>
+            }
+
+            <form action="api/account/login" method="post" style="width: 100%;">
+                <RadzenStack Gap="1rem">
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="Email" />
+                    <RadzenTextBox Name="email" style="width: 100%;" />
+                    
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="Password" />
+                    <RadzenPassword Name="password" style="width: 100%;" />
+                    
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="Login" Icon="login" 
+                                  ButtonStyle="ButtonStyle.Primary" class="rz-mt-4" style="width: 100%;" />
+                </RadzenStack>
+            </form>
+            
+            <RadzenText TextStyle="TextStyle.Caption" class="rz-mt-4">
+                Hint: admin@beetech.com / User@123
+            </RadzenText>
+        </RadzenStack>
+    </RadzenCard>
+</div>
+
+<style>
+    .login-container {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 100vh;
+        background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+    }
+    .login-card {
+        border-radius: 16px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+</style>
+
+@code {
+    [Parameter]
+    [SupplyParameterFromQuery]
+    public string? Error { get; set; }
+
+    private string? errorMessage;
+
+    protected override void OnInitialized()
+    {
+        if (!string.IsNullOrEmpty(Error))
+        {
+            errorMessage = Error;
+        }
+    }
+}

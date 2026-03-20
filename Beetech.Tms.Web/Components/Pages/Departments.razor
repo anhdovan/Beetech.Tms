@@ -1,0 +1,79 @@
+@page "/departments"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Manager")]
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<PageTitle>Departments - Beetech TMS</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="Departments" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add_circle_outline" Text="Add Department" Click="@OnAddDepartment" />
+</RadzenStack>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="10" AllowPaging="true" 
+                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@departments" TItem="Department" ColumnWidth="300px">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="Name" Title="Name" />
+        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true">
+            <Template Context="dept">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => EditDepartment(dept))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => OnDeleteDepartment(dept))" @onclick:stopPropagation="true" />
+                </RadzenStack>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Department> grid = null!;
+    IEnumerable<Department> departments = new List<Department>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        departments = await TmsService.GetDepartmentsAsync();
+    }
+
+    async Task OnAddDepartment()
+    {
+        await EditDepartment(new Department());
+    }
+
+    async Task EditDepartment(Department dept)
+    {
+        var result = await DialogService.OpenAsync<DepartmentEditDialog>(dept.Id == 0 ? "Add Department" : "Edit Department",
+            new Dictionary<string, object> { { "Department", dept } }, new DialogOptions());
+
+        if (result == true)
+        {
+            await LoadData();
+            if (grid != null) await grid.Reload();
+        }
+    }
+
+    async Task OnDeleteDepartment(Department dept)
+    {
+        var confirm = await DialogService.Confirm($"Are you sure you want to delete department '{dept.Name}'?", "Delete Department");
+        if (confirm == true)
+        {
+            var success = await TmsService.DeleteDepartmentAsync(dept.Id);
+            if (success)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Department deleted" });
+                await LoadData();
+                if (grid != null) await grid.Reload();
+            }
+        }
+    }
+}

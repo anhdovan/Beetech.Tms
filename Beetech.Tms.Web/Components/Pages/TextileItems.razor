@@ -1,0 +1,116 @@
+@page "/items"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Manager,Operator")]
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<PageTitle>Textile Items - Beetech TMS</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="Textile Items" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add_circle_outline" Text="Register Item" Click="@OnAddItem" />
+</RadzenStack>
+
+<RadzenCard class="rz-mb-4">
+    <RadzenTextBox Placeholder="Search Code or Category..." Change="@OnSearch" style="width: 100%;" />
+</RadzenCard>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="10" AllowPaging="true" 
+                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@items" TItem="TextileItem" ColumnWidth="300px">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="Code" Title="Item Code" Width="180px" />
+        <RadzenDataGridColumn Property="Category.Name" Title="Category" FilterMode="FilterMode.CheckBoxList">
+            <Template Context="item">
+                @item.Category?.Name
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="Status" Title="Status" FilterMode="FilterMode.CheckBoxList">
+            <Template Context="item">
+                <RadzenBadge BadgeStyle="@GetStatusBadgeStyle(item.Status)" Text="@item.Status.ToString()" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="CurrentLocation.Name" Title="Location" FilterMode="FilterMode.CheckBoxList" />
+        <RadzenDataGridColumn Property="CurrentDepartment.Name" Title="Department" FilterMode="FilterMode.CheckBoxList">
+            <Template Context="item">
+                @item.CurrentDepartment?.Name
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="WashCount" Title="Wash Count" Width="120px" />
+        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+            <Template Context="item">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                    <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => EditItem(item))" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => OnDeleteItem(item))" />
+                </RadzenStack>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<TextileItem> grid = null!;
+    IEnumerable<TextileItem> items = new List<TextileItem>();
+    string? searchText;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        items = await TmsService.GetItemsAsync(searchText);
+    }
+
+    async Task OnSearch(string? value)
+    {
+        searchText = value;
+        await LoadData();
+    }
+
+    async Task OnAddItem()
+    {
+        await EditItem(new TextileItem());
+    }
+
+    async Task EditItem(TextileItem item)
+    {
+        var result = await DialogService.OpenAsync<ItemEditDialog>(item.Id == 0 ? "Register Item" : "Edit Item",
+            new Dictionary<string, object> { { "Item", item } }, new DialogOptions());
+
+        if (result == true)
+        {
+            await LoadData();
+            if (grid != null) await grid.Reload();
+        }
+    }
+
+    async Task OnDeleteItem(TextileItem item)
+    {
+        var confirm = await DialogService.Confirm($"Are you sure you want to delete item '{item.Code}'?", "Delete Item");
+        if (confirm == true)
+        {
+            var success = await TmsService.DeleteItemAsync(item.Id);
+            if (success)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Item deleted" });
+                await LoadData();
+                if (grid != null) await grid.Reload();
+            }
+        }
+    }
+
+    BadgeStyle GetStatusBadgeStyle(ItemStatus status) => status switch
+    {
+        ItemStatus.Available => BadgeStyle.Success,
+        ItemStatus.InUse => BadgeStyle.Info,
+        ItemStatus.Soiled => BadgeStyle.Warning,
+        ItemStatus.Condemned => BadgeStyle.Danger,
+        _ => BadgeStyle.Secondary
+    };
+}

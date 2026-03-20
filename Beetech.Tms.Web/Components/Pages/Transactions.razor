@@ -1,0 +1,99 @@
+@page "/transactions"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+
+<PageTitle>Transactions - Beetech TMS</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="Transactions" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem">
+        <RadzenButton Icon="local_shipping" Text="New Delivery" ButtonStyle="ButtonStyle.Primary" Click="@(() => OnNewTransaction(TransactionType.Delivery))" />
+        <RadzenButton Icon="receipt_long" Text="New Receipt" ButtonStyle="ButtonStyle.Success" Click="@(() => OnNewTransaction(TransactionType.Receipt))" />
+    </RadzenStack>
+</RadzenStack>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
+                FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="10" AllowPaging="true" 
+                PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
+                Data="@transactions" TItem="Transaction" ColumnWidth="300px">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="Type" Title="Type" Width="120px">
+            <Template Context="transaction">
+                <RadzenBadge BadgeStyle="@(transaction.Type == TransactionType.Delivery ? BadgeStyle.Primary : BadgeStyle.Success)" 
+                             Text="@transaction.Type.ToString()" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Property="TransactionDate" Title="Date" FormatString="{0:d}" Width="150px" />
+        <RadzenDataGridColumn Property="FromLocation.Name" Title="From" />
+        <RadzenDataGridColumn Property="ToLocation.Name" Title="To" />
+        <RadzenDataGridColumn Property="CreatedBy.FullName" Title="Created By" />
+        <RadzenDataGridColumn Title="Items" Sortable="false" Filterable="false" Width="100px">
+            <Template Context="transaction">
+                @transaction.Items.Count
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true">
+            <Template Context="transaction">
+                <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                    <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => ViewTransaction(transaction))" @onclick:stopPropagation="true" />
+                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => OnDeleteTransaction(transaction))" @onclick:stopPropagation="true" />
+                </RadzenStack>
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Transaction> grid = null!;
+    IEnumerable<Transaction> transactions = new List<Transaction>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        transactions = await TmsService.GetTransactionsAsync();
+    }
+
+    async Task OnNewTransaction(TransactionType type)
+    {
+        var result = await DialogService.OpenAsync<TransactionDialog>(type == TransactionType.Delivery ? "New Delivery" : "New Receipt",
+            new Dictionary<string, object> { { "Type", type } }, 
+            new DialogOptions { Width = "900px", Height = "700px", Resizable = true, Draggable = true });
+
+        if (result == true)
+        {
+            await LoadData();
+            if (grid != null) await grid.Reload();
+        }
+    }
+
+    async Task ViewTransaction(Transaction transaction)
+    {
+        await DialogService.OpenAsync<TransactionDialog>("Transaction Details",
+            new Dictionary<string, object> { { "TransactionId", transaction.Id } },
+            new DialogOptions { Width = "900px", Height = "700px", Resizable = true, Draggable = true });
+    }
+
+    async Task OnDeleteTransaction(Transaction transaction)
+    {
+        var confirm = await DialogService.Confirm("Are you sure you want to delete this transaction? This will ONLY soft delete the record.", "Delete Transaction");
+        if (confirm == true)
+        {
+            var success = await TmsService.DeleteTransactionAsync(transaction.Id);
+            if (success)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Transaction deleted" });
+                await LoadData();
+                if (grid != null) await grid.Reload();
+            }
+        }
+    }
+}

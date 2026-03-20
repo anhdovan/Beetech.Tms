@@ -1,0 +1,156 @@
+@using Microsoft.AspNetCore.Components.Authorization
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@inject DialogService DialogService
+@inject AuthenticationStateProvider AuthenticationStateProvider
+
+<RadzenStack Gap="1rem">
+    @if (transaction == null)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else
+    {
+        <RadzenTemplateForm TItem="Transaction" Data="@transaction" Submit="@OnSubmit">
+            <RadzenStack Gap="1rem">
+                <RadzenRow>
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFieldset Text="Basic Info">
+                            <RadzenStack Gap="0.5rem">
+                                <RadzenLabel Text="Transaction Date" Component="TransactionDate" />
+                                <RadzenDatePicker Name="TransactionDate" @bind-Value="@transaction.TransactionDate" DateFormat="d" style="width: 100%;" />
+                                
+                                <RadzenLabel Text="From Location" Component="FromLocationId" />
+                                <RadzenDropDown Name="FromLocationId" Data="@locations" TextProperty="Name" ValueProperty="Id" 
+                                               @bind-Value="@transaction.FromLocationId" style="width: 100%;" AllowFiltering="true" />
+                                
+                                <RadzenLabel Text="To Location" Component="ToLocationId" />
+                                <RadzenDropDown Name="ToLocationId" Data="@locations" TextProperty="Name" ValueProperty="Id" 
+                                               @bind-Value="@transaction.ToLocationId" style="width: 100%;" AllowFiltering="true" />
+                                
+                                <RadzenLabel Text="Notes" Component="Notes" />
+                                <RadzenTextArea Name="Notes" @bind-Value="@transaction.Notes" style="width: 100%;" />
+                            </RadzenStack>
+                        </RadzenFieldset>
+                    </RadzenColumn>
+                    
+                    <RadzenColumn Size="12" SizeMD="6">
+                        <RadzenFieldset Text="Scan Items">
+                            <RadzenStack Gap="1rem">
+                                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                                    <RadzenTextBox Placeholder="Scan Barcode/RFID..." @bind-Value="@newRfid" style="flex: 1" 
+                                                  @onkeyup="@(async (e) => { if (e.Key == "Enter") await AddItemByRfid(); })" />
+                                    <RadzenButton Icon="add" Text="Add" Click="@AddItemByRfid" Disabled="@string.IsNullOrEmpty(newRfid)" />
+                                </RadzenStack>
+                                
+                                <RadzenDataGrid Data="@transaction.Items" TItem="TransactionItem" style="height: 300px">
+                                    <Columns>
+                                        <RadzenDataGridColumn Title="Actions" Width="60px">
+                                            <Template Context="item">
+                                                <RadzenButton Icon="close" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" 
+                                                              Click="@(() => RemoveItem(item))" />
+                                            </Template>
+                                        </RadzenDataGridColumn>
+                                    </Columns>
+                                </RadzenDataGrid>
+                                <RadzenText Text="@($"Total Items: {transaction.Items.Count}")" TextStyle="TextStyle.Subtitle2" />
+                            </RadzenStack>
+                        </RadzenFieldset>
+                    </RadzenColumn>
+                </RadzenRow>
+                
+                <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Icon="save" ButtonStyle="ButtonStyle.Primary" />
+                    <RadzenButton Text="Cancel" Click="@(() => DialogService.Close(false))" ButtonStyle="ButtonStyle.Light" />
+                </RadzenStack>
+            </RadzenStack>
+        </RadzenTemplateForm>
+    }
+</RadzenStack>
+
+@code {
+    [Parameter] public TransactionType? Type { get; set; }
+    [Parameter] public int? TransactionId { get; set; }
+
+    Transaction transaction = null!;
+    IEnumerable<Location> locations = new List<Location>();
+    string? newRfid;
+
+    protected override async Task OnInitializedAsync()
+    {
+        locations = await TmsService.GetLocationsAsync();
+
+        if (TransactionId.HasValue)
+        {
+            transaction = await TmsService.GetTransactionByIdAsync(TransactionId.Value);
+        }
+        else
+        {
+            transaction = new Transaction
+            {
+                Type = Type ?? TransactionType.Delivery,
+                TransactionDate = DateTime.Now,
+                Items = new List<TransactionItem>()
+            };
+        }
+    }
+
+    async Task AddItemByRfid()
+    {
+        if (string.IsNullOrEmpty(newRfid)) return;
+        
+        var item = await TmsService.GetItemByRfidAsync(newRfid);
+        if (item == null)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = "Warning", Detail = $"RFID Tag '{newRfid}' not found" });
+            newRfid = null;
+            return;
+        }
+
+        if (transaction.Items.Any(i => i.TextileItemId == item.Id))
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Info, Summary = "Info", Detail = "Item already in list" });
+            newRfid = null;
+            return;
+        }
+
+        transaction.Items.Add(new TransactionItem
+        {
+            TextileItemId = item.Id
+        });
+
+        newRfid = null;
+        StateHasChanged();
+    }
+
+    void RemoveItem(TransactionItem item)
+    {
+        transaction.Items.Remove(item);
+    }
+
+    async Task OnSubmit()
+    {
+        if (!transaction.Items.Any())
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Please scan at least one item" });
+            return;
+        }
+
+        if (transaction.FromLocationId == transaction.ToLocationId)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Source and Destination locations must be different" });
+            return;
+        }
+
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+        // In a real app, we'd get the user ID here. For now, we'll let the service handle it or use a default.
+
+        var success = await TmsService.UpsertTransactionAsync(transaction);
+        if (success)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Transaction saved" });
+            DialogService.Close(true);
+        }
+    }
+}

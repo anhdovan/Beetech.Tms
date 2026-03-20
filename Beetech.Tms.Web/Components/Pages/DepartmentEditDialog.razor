@@ -1,0 +1,53 @@
+@using Beetech.Tms.Core.Models
+@using Beetech.Tms.Web.Services
+@inject TmsService TmsService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+
+<RadzenTemplateForm TItem="Department" Data="@Department" Submit="@OnSubmit">
+    <RadzenStack Gap="1rem">
+        <RadzenFieldset Text="Department Details">
+            <RadzenStack Gap="1rem">
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Name" Component="Name" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Department.Name" Name="Name" />
+                        <RadzenRequiredValidator Component="Name" Text="Name is required" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="Active" Component="IsActive" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenCheckBox @bind-Value="@Department.IsActive" Name="IsActive" />
+                    </div>
+                </div>
+            </RadzenStack>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Icon="save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@((args) => DialogService.Close(false))" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Department Department { get; set; } = new();
+
+    async Task OnSubmit(Department department)
+    {
+        var success = await TmsService.UpsertDepartmentAsync(department);
+        if (success)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Department saved successfully" });
+            DialogService.Close(true);
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Failed to save department" });
+        }
+    }
+}
