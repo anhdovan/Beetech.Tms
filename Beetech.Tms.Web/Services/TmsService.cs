@@ -130,6 +130,8 @@ public class TmsService
             .Include(t => t.Department)
             .Include(t => t.CreatedBy)
             .Include(t => t.Items)
+                .ThenInclude(ti => ti.TextileItem)
+                    .ThenInclude(i => i.Category)
             .OrderByDescending(t => t.TransactionDate)
             .ToListAsync();
 
@@ -140,6 +142,8 @@ public class TmsService
             .Include(t => t.Department)
             .Include(t => t.CreatedBy)
             .Include(t => t.Items)
+                .ThenInclude(ti => ti.TextileItem)
+                    .ThenInclude(i => i.Category)
             .FirstOrDefaultAsync(t => t.Id == id);
 
     public async Task<bool> UpsertTransactionAsync(Transaction transaction)

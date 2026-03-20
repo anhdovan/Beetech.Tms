@@ -18,6 +18,22 @@
                 FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive" AllowSorting="true" PageSize="10" AllowPaging="true" 
                 PagerHorizontalAlign="HorizontalAlign.Left" ShowPagingSummary="true"
                 Data="@transactions" TItem="Transaction" ColumnWidth="300px">
+    <Template Context="transaction">
+        <RadzenCard class="rz-m-4" Variant="Variant.Flat" Style="background-color: #f8f9fa;">
+            <RadzenText TextStyle="TextStyle.Subtitle1" Text="Transaction Items" class="rz-mb-2" Style="font-weight: 700; color: #1b6ec2;" />
+            <RadzenDataGrid Data="@transaction.Items.ToList()" TItem="TransactionItem" AllowPaging="true" PageSize="5" AllowSorting="true">
+                <Columns>
+                    <RadzenDataGridColumn Property="TextileItem.Code" Title="Item Code" Width="200px" />
+                    <RadzenDataGridColumn Property="TextileItem.Category.Name" Title="Category" />
+                    <RadzenDataGridColumn Property="StatusAtTransaction" Title="Status" Width="120px">
+                        <Template Context="ti">
+                            <RadzenBadge BadgeStyle="@GetStatusBadge(ti.StatusAtTransaction)" Text="@ti.StatusAtTransaction.ToString()" />
+                        </Template>
+                    </RadzenDataGridColumn>
+                </Columns>
+            </RadzenDataGrid>
+        </RadzenCard>
+    </Template>
     <Columns>
         <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
         <RadzenDataGridColumn Property="Type" Title="Type" Width="120px">
@@ -96,4 +112,16 @@
             }
         }
     }
+
+    BadgeStyle GetStatusBadge(ItemStatus status) => status switch
+    {
+        ItemStatus.Available => BadgeStyle.Success,
+        ItemStatus.InUse => BadgeStyle.Primary,
+        ItemStatus.Soiled => BadgeStyle.Warning,
+        ItemStatus.Condemned => BadgeStyle.Danger,
+        ItemStatus.Lost or ItemStatus.Missing => BadgeStyle.Secondary,
+        ItemStatus.Damaged => BadgeStyle.Danger,
+        ItemStatus.Relocated => BadgeStyle.Info,
+        _ => BadgeStyle.Light
+    };
 }
