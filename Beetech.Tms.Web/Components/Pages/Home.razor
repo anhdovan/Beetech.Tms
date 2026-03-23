@@ -6,10 +6,11 @@
 @using Microsoft.AspNetCore.Authorization
 @using Radzen
 @using Radzen.Blazor
+@inject IStringLocalizer<App> L
 
-<PageTitle>Dashboard - Beetech TMS</PageTitle>
+<PageTitle>@L["Dashboard"] - Beetech TMS</PageTitle>
 
-<RadzenText Text="Dashboard" TextStyle="TextStyle.H4" class="rz-mb-6" />
+<RadzenText Text="@L["Dashboard"]" TextStyle="TextStyle.H4" class="rz-mb-6" />
 
 <div class="container-fluid">
     @if (stats == null)
@@ -24,7 +25,7 @@
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                         <RadzenStack Gap="0">
                             <RadzenText Text="@stats.TotalItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
-                            <RadzenText Text="Total Items" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                            <RadzenText Text="@L["TotalItems"]" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
                         </RadzenStack>
                         <RadzenIcon Icon="inventory" IconColor="var(--rz-primary)" style="font-size: 2rem; opacity: 0.2;" />
                     </RadzenStack>
@@ -35,7 +36,7 @@
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                         <RadzenStack Gap="0">
                             <RadzenText Text="@stats.AvailableItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
-                            <RadzenText Text="Available" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                            <RadzenText Text="@L["Available"]" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
                         </RadzenStack>
                         <RadzenIcon Icon="check_circle" IconColor="var(--rz-success)" style="font-size: 2rem; opacity: 0.2;" />
                     </RadzenStack>
@@ -46,7 +47,7 @@
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                         <RadzenStack Gap="0">
                             <RadzenText Text="@stats.InUseItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
-                            <RadzenText Text="In Use" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                            <RadzenText Text="@L["InUse"]" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
                         </RadzenStack>
                         <RadzenIcon Icon="sync" IconColor="var(--rz-warning)" style="font-size: 2rem; opacity: 0.2;" />
                     </RadzenStack>
@@ -57,7 +58,7 @@
                     <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween">
                         <RadzenStack Gap="0">
                             <RadzenText Text="@stats.CondemnedItems.ToString()" TextStyle="TextStyle.H4" class="rz-m-0 font-bold" />
-                            <RadzenText Text="Condemned" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
+                            <RadzenText Text="@L["Condemned"]" TextStyle="TextStyle.Caption" class="rz-m-0 uppercase tracking-wider opacity-70" />
                         </RadzenStack>
                         <RadzenIcon Icon="dangerous" IconColor="var(--rz-danger)" style="font-size: 2rem; opacity: 0.2;" />
                     </RadzenStack>
@@ -68,16 +69,16 @@
         <div class="row">
             <div class="col-md-6">
                 <RadzenCard class="rz-p-4" style="height: 400px;">
-                    <RadzenText Text="Items by Category" TextStyle="TextStyle.H6" class="rz-mb-4" />
+                    <RadzenText Text="@L["ItemsByCategory"]" TextStyle="TextStyle.H6" class="rz-mb-4" />
                     <RadzenChart>
-                        <RadzenDonutSeries Data="@categoryData" CategoryProperty="Category" ValueProperty="Count" Title="Items" />
+                        <RadzenDonutSeries Data="@categoryData" CategoryProperty="Category" ValueProperty="Count" Title="@L["Items"]" />
                     </RadzenChart>
                 </RadzenCard>
             </div>
             <div class="col-md-6">
                 <RadzenCard class="rz-p-4" style="height: 400px;">
-                    <RadzenText Text="Recent Activities" TextStyle="TextStyle.H6" class="rz-mb-4" />
-                    <RadzenText Text="Coming soon: Transaction history chart" class="rz-mt-10 opacity-50 text-center" />
+                    <RadzenText Text="@L["RecentActivities"]" TextStyle="TextStyle.H6" class="rz-mb-4" />
+                    <RadzenText Text="@L["ComingSoonTransactionChart"]" class="rz-mt-10 opacity-50 text-center" />
                 </RadzenCard>
             </div>
         </div>

@@ -1,0 +1,175 @@
+@inject Microsoft.AspNetCore.Identity.UserManager<Beetech.Tms.Core.Models.AppUser> UserManager
+@inject Microsoft.AspNetCore.Identity.RoleManager<Beetech.Tms.Core.Models.AppRole> RoleManager
+@inject Beetech.Tms.Web.Services.TmsService TmsService
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> L
+@using Microsoft.EntityFrameworkCore
+
+@if (IsLoading)
+{
+    <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+}
+else
+{
+<RadzenTemplateForm Data="@ViewModel" Submit="@((UserFormViewModel args) => OnSubmit(args))">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Email"]" />
+            <RadzenTextBox @bind-Value="ViewModel.Email" Name="Email" Disabled="@(!IsNew)" />
+            <RadzenRequiredValidator Component="Email" Text="@L["Required"]" />
+            <RadzenEmailValidator Component="Email" Text="@L["InvalidEmail"]" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["FullName"]" />
+            <RadzenTextBox @bind-Value="ViewModel.FullName" Name="FullName" />
+            <RadzenRequiredValidator Component="FullName" Text="@L["Required"]" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Password"]" />
+            <RadzenPassword @bind-Value="ViewModel.Password" Name="Password" />
+            @if (IsNew)
+            {
+                <RadzenRequiredValidator Component="Password" Text="@L["Required"]" />
+            }
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Department"]" />
+            <RadzenDropDown @bind-Value="ViewModel.DepartmentId" Data="@Departments" TextProperty="Name" ValueProperty="Id" AllowClear="true" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Customer"]" />
+            <RadzenDropDown @bind-Value="ViewModel.CustomerId" Data="@Customers" TextProperty="Name" ValueProperty="Id" AllowClear="true" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Role"]" />
+            <RadzenDropDown @bind-Value="ViewModel.SelectedRole" Data="@Roles" TextProperty="Name" ValueProperty="Name" />
+            <RadzenRequiredValidator Component="Role" Text="@L["Required"]" />
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+            <RadzenCheckBox @bind-Value="ViewModel.IsActive" Name="IsActive" />
+            <RadzenLabel Text="@L["Active"]" Component="IsActive" />
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" class="rz-mt-4">
+            <RadzenButton ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Light" Text="@L["Cancel"]" Click="@(() => DialogService.Close(false))" />
+            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@L["Save"]" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+}
+
+@code {
+    [Parameter] public int? UserId { get; set; }
+    [Parameter] public bool IsNew { get; set; } = true;
+
+    bool IsLoading = true;
+    UserFormViewModel ViewModel = new UserFormViewModel();
+    List<Beetech.Tms.Core.Models.Department> Departments = new();
+    List<Beetech.Tms.Core.Models.Customer> Customers = new();
+    List<Beetech.Tms.Core.Models.AppRole> Roles = new();
+    Beetech.Tms.Core.Models.AppUser? UserInstance;
+
+    class UserFormViewModel
+    {
+        public string Email { get; set; } = "";
+        public string FullName { get; set; } = "";
+        public string Password { get; set; } = "";
+        public int? DepartmentId { get; set; }
+        public int? CustomerId { get; set; }
+        public string SelectedRole { get; set; } = "";
+        public bool IsActive { get; set; } = true;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        Departments = await TmsService.GetDepartmentsAsync();
+        Customers = await TmsService.GetCustomersAsync();
+        Roles = await RoleManager.Roles.ToListAsync();
+
+        if (!IsNew && UserId.HasValue)
+        {
+            UserInstance = await UserManager.Users.Include(u => u.Department).Include(u => u.Customer).FirstOrDefaultAsync(u => u.Id == UserId.Value);
+            if (UserInstance != null)
+            {
+                ViewModel.Email = UserInstance.Email ?? "";
+                ViewModel.FullName = UserInstance.FullName;
+                ViewModel.DepartmentId = UserInstance.DepartmentId;
+                ViewModel.CustomerId = UserInstance.CustomerId;
+                ViewModel.IsActive = UserInstance.IsActive;
+
+                var userRoles = await UserManager.GetRolesAsync(UserInstance);
+                ViewModel.SelectedRole = userRoles.FirstOrDefault() ?? "";
+            }
+        }
+        IsLoading = false;
+    }
+
+    async Task OnSubmit(UserFormViewModel model)
+    {
+        Microsoft.AspNetCore.Identity.IdentityResult result = Microsoft.AspNetCore.Identity.IdentityResult.Success;
+
+        if (IsNew)
+        {
+            UserInstance = new Beetech.Tms.Core.Models.AppUser
+            {
+                UserName = ViewModel.Email,
+                Email = ViewModel.Email,
+                FullName = ViewModel.FullName,
+                DepartmentId = ViewModel.DepartmentId,
+                CustomerId = ViewModel.CustomerId,
+                IsActive = ViewModel.IsActive,
+                EmailConfirmed = true
+            };
+            result = await UserManager.CreateAsync(UserInstance, ViewModel.Password);
+            if (result.Succeeded && !string.IsNullOrEmpty(ViewModel.SelectedRole))
+            {
+                await UserManager.AddToRoleAsync(UserInstance, ViewModel.SelectedRole);
+            }
+        }
+        else if (UserInstance != null)
+        {
+            UserInstance.FullName = ViewModel.FullName;
+            UserInstance.DepartmentId = ViewModel.DepartmentId;
+            UserInstance.CustomerId = ViewModel.CustomerId;
+            UserInstance.IsActive = ViewModel.IsActive;
+
+            result = await UserManager.UpdateAsync(UserInstance);
+            if (result.Succeeded && !string.IsNullOrEmpty(ViewModel.Password))
+            {
+                var token = await UserManager.GeneratePasswordResetTokenAsync(UserInstance);
+                await UserManager.ResetPasswordAsync(UserInstance, token, ViewModel.Password);
+            }
+
+            if (result.Succeeded)
+            {
+                var currentRoles = await UserManager.GetRolesAsync(UserInstance);
+                if (currentRoles.FirstOrDefault() != ViewModel.SelectedRole)
+                {
+                    await UserManager.RemoveFromRolesAsync(UserInstance, currentRoles);
+                    if (!string.IsNullOrEmpty(ViewModel.SelectedRole))
+                    {
+                        await UserManager.AddToRoleAsync(UserInstance, ViewModel.SelectedRole);
+                    }
+                }
+            }
+        }
+
+        if (result.Succeeded)
+        {
+            NotificationService.Notify(NotificationSeverity.Success, L["Success"], L["SavedSuccessfully"]);
+            DialogService.Close(true);
+        }
+        else
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            NotificationService.Notify(NotificationSeverity.Error, L["Error"], errors);
+        }
+    }
+}

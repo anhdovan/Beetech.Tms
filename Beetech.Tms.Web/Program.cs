@@ -6,8 +6,16 @@ using Microsoft.EntityFrameworkCore;
 using Radzen;
 using Beetech.Tms.Web.Components;
 using Serilog;
+using OfficeOpenXml;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Localization;
+using System.Globalization;
 
 var builder = WebApplication.CreateBuilder(args);
+
+ExcelPackage.License.SetNonCommercialPersonal("Beetech TMS");
 
 builder.Host.UseSerilog((context, services, configuration) => configuration
     .ReadFrom.Configuration(context.Configuration)
@@ -18,32 +26,48 @@ builder.Host.UseSerilog((context, services, configuration) => configuration
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddLocalization(options => options.ResourcesPath = "Resources");
+
 builder.Services.AddControllers();
 
-// EF Core with SQL Server
-builder.Services.AddDbContextFactory<TmsDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("DefaultConnection")));
-builder.Services.AddScoped(p => p.GetRequiredService<IDbContextFactory<TmsDbContext>>().CreateDbContext());
+// Add Radzen services
+builder.Services.AddRadzenComponents();
 
-// Identity
-builder.Services.AddAuthentication(options =>
-    {
-        options.DefaultScheme = IdentityConstants.ApplicationScheme;
-        options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-    })
-    .AddIdentityCookies();
+// Add Database
+var connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? "Data Source=tms.db";
+builder.Services.AddDbContext<TmsDbContext>(options =>
+    options.UseSqlite(connectionString));
 
-builder.Services.AddIdentityCore<AppUser>(options => options.SignIn.RequireConfirmedAccount = false)
-    .AddRoles<AppRole>()
+// Add Identity
+builder.Services.AddIdentity<AppUser, AppRole>(options => {
+    options.SignIn.RequireConfirmedAccount = false;
+    options.Password.RequireDigit = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireLowercase = false;
+})
     .AddEntityFrameworkStores<TmsDbContext>()
-    .AddSignInManager()
     .AddDefaultTokenProviders();
+
+// Add JWT Authentication (in addition to Identity cookies)
+builder.Services.AddAuthentication()
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"] ?? "BeetechTMS",
+            ValidAudience = builder.Configuration["Jwt:Audience"] ?? "BeetechTMS",
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"] ?? "this_is_a_very_secret_key_for_jwt_32_chars_long"))
+        };
+    });
 
 builder.Services.AddCascadingAuthenticationState();
 builder.Services.AddAuthorization();
-
-// Radzen services
-builder.Services.AddRadzenComponents();
 
 // Custom services
 builder.Services.AddScoped<TmsService>();
@@ -72,7 +96,22 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
+
+var supportedCultures = new[] { "en-US", "vi-VN" };
+var localizationOptions = new RequestLocalizationOptions()
+    .SetDefaultCulture(supportedCultures[0])
+    .AddSupportedCultures(supportedCultures)
+    .AddSupportedUICultures(supportedCultures);
+
+app.UseRequestLocalization(localizationOptions);
 app.UseAntiforgery();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+
+
+
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();

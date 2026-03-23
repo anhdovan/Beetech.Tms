@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">BT RFID Inventory</string>
+	<string name="app_version">Version</string>
+    
+    <string name="default_version">1.0.0</string>
+    <string name="default_count">0</string>
+    <string name="default_unknown">Unknown</string>
+    
+    <string name="action_connect">Connect</string>
+    <string name="action_disconnect">Disconnect</string>
+    <string name="action_search">Search</string>
+	<string name="action_scan_device">Scan Device</string>
+	    
+	<string name="action_start">Start</string>
+	<string name="action_stop">Stop</string>
+	<string name="action_setting">Settings</string>
+	<string name="action_clear">Clear</string>
+        
+	<string name="action_ok">OK</string>
+	<string name="action_cancel">Cancel</string>
+	<string name="action_yes">Yes</string>
+	<string name="action_no">No</string>
+	<string name="action_on">On</string>
+	<string name="action_off">Off</string>
+		
+	<string name="title_bt">Bluetooth</string>
+	<string name="title_error">Error</string>
+	<string name="title_system_error">System Error</string>
+	<string name="title_bt_error">Bluetooth Error</string>
+	<string name="title_usb_error">USB Error</string>
+	<string name="title_select_device_name">Select Device</string>
+    <string name="title_rfid_option">RFID Options</string>	
+	<string name="title_select_mask_6c">Select Mask 6c</string>
+    <string name="title_select_mask_6c_item">Select Mask Item</string>
+    <string name="title_select_mask">Select Mask</string>
+	<string name="title_usb_charging">USB Power Charging</string>
+		
+    <string name="device_info">Device Info</string>
+    <string name="device_name_rp100">RP100</string>
+    <string name="sample_device_address">2F:00:11:30:00:01</string>
+    
+    <string name="paired_device">Paired Devices</string>
+    <string name="new_device">New Devices</string>
+    
+	<string name="msg_not_support_bt">This Device does not support Bluetooth. Please check again.</string>
+	<string name="msg_not_support_usb">This Device does not support USB. Please check again.</string>
+    <string name="msg_not_connect_bt">Bluetooth is not connected to the device. Please check again.</string>
+    <string name="msg_not_connect_usb">USB is not connected to the device. Please check again.</string>
+    <string name="msg_connecting_bt">Bluetooth is connecting to the device.</string>
+    <string name="msg_connecting_usb">USB is connecting to the device.</string>
+    <string name="msg_usb_charigng_on">Power charger inserted.\r\nDo you want to charge the phone?\r\nUSB communication will be lost when charging the phone.</string>    
+    <string name="msg_initialize_view">Initializing. Please wait.</string>
+	<string name="msg_success">Success</string>
+	<string name="msg_fail_changed_action">Failed to changed action state.</string>
+	
+	<string name="msg_fail_stop_action">Failed to stop action.</string>
+	<string name="msg_fail_start_inventory">Failed to start inventoried.</string>
+    <string name="msg_fail_set_inventory_tag_type">Failed to set inventory tag type.</string>
+	<string name="msg_fail_load_reader_instance">Failed to get Reader instance.</string>
+	<string name="msg_fail_load_rfid_reader_instance">Failed to get Rfid Reader Instance.</string>
+    <string name="msg_fail_load_disabled_action_key">Failed to disabled action key.</string>
+    <string name="msg_fail_save_rfid_version">Failed to save rfid module version.</string>
+    <string name="msg_fail_load_rfid_version">Failed to load rfid module version.</string>
+    <string name="msg_fail_load_rfid_global_band">Failed to load global band.</string>
+    <string name="msg_fail_save_rfid_global_band">Failed to save global band.</string>
+    <string name="msg_fail_load_rfid_power_gain">Failed to load power gain.</string>
+    <string name="msg_fail_save_rfid_power_gain">Failed to save power gain.</string>
+    <string name="msg_fail_load_rfid_inventory_time">Failed to load inventory time.</string>
+    <string name="msg_fail_save_rfid_inventory_time">Failed to save inventory time.</string>
+    <string name="msg_fail_load_rfid_idle_time">Failed to load idle time.</string>
+    <string name="msg_fail_save_rfid_idle_time">Failed to save idle time.</string>
+    <string name="msg_fail_load_rfid_operation_time">Failed to load operation time.</string>
+    <string name="msg_fail_save_rfid_operation_time">Failed to save operation time.</string>
+    <string name="msg_fail_load_rfid_report_rssi">Failed to load report rssi.</string>
+    <string name="msg_fail_save_rfid_report_rssi">Failed to save report rssi.</string>
+    <string name="msg_fail_load_rfid_current_link_profile">Failed to load current link profile.</string>
+    <string name="msg_fail_save_rfid_current_link_profile">Failed to save current link profile.</string>
+    <string name="msg_fail_load_rfid_default_link_profile">Failed to load default link profile.</string>
+    <string name="msg_fail_save_rfid_default_link_profile">Failed to save default link profile.</string>
+    <string name="msg_fail_load_rfid_select_mask">Failed to load select mask.</string>
+    <string name="msg_fail_save_rfid_select_mask">Failed to save select mask.</string>
+    <string name="msg_fail_load_rfid_select_flag">Failed to load select flag.</string>
+    <string name="msg_fail_save_rfid_select_flag">Failed to save select flag.</string>
+    <string name="msg_fail_load_rfid_session_target">Failed to load session target.</string>
+    <string name="msg_fail_save_rfid_session_target">Failed to save session target.</string>
+    <string name="msg_fail_load_rfid_session_flag">Failed to load session flag.</string>
+    <string name="msg_fail_save_rfid_session_flag">Failed to save session flag.</string>
+    <string name="msg_fail_load_rfid_algorithm">Failed to load algorithm.</string>
+    <string name="msg_fail_save_rfid_algorithm">Failed to save algorithm.</string>
+    <string name="msg_fail_load_rfid_start_q">Failed to load start Q.</string>
+    <string name="msg_fail_save_rfid_start_q">Failed to save start Q.</string>
+    <string name="msg_fail_load_rfid_min_q">Failed to load min Q.</string>
+    <string name="msg_fail_save_rfid_min_q">Failed to save min Q.</string>
+    <string name="msg_fail_load_rfid_max_q">Failed to load max Q.</string>
+    <string name="msg_fail_save_rfid_max_q">Failed to save max Q.</string>
+    <string name="msg_fail_load_rfid_frequency_table">Failed to load frequency table.</string>
+    <string name="msg_fail_save_rfid_frequency_table">Failed to save frequency table.</string>
+    <string name="msg_fail_save_auto_save_mode">Failed to save auto save mode.</string>
+    <string name="msg_fail_load_auto_save_mode">Failed to load auto save mode.</string>
+	
+    <string name="msg_fail_permission">Permission required to run Application is not granted. Exit the Application.</string>
+	<string name="msg_fail_set_usb_charging">Failed to set usb charging state to the device.</string>
+		
+    <string name="msg_loading_select_mask">Loading select mask. Please wait.</string>
+    <string name="msg_saving_select_mask">Saving select mask. Please wait.</string>
+    
+    <string name="count">Count</string>
+    <string name="tag_count">Tag/Total Count</string>
+    
+    <!-- RFID Option -->
+    <string name="rfid_version">Module Version</string>    
+    <string name="global_band">Global Band</string>
+    <string name="power_gain">Power Gain</string>
+    <string name="inventory_time">Inventory Time</string>
+    <string name="idle_time">Idle Time</string>
+    <string name="operation_time">Operation Time</string>
+    <string name="auto_save_mode">Auto Save Mode</string>
+    <string name="report_rssi">Report RSSI</string>
+    <string name="current_link_profile">Current Link Profile</string>
+    <string name="default_link_profile">Default Link Profile</string>
+	<string name="selection_mask">Selection Mask</string>
+    <string name="inventory_set">Inventory Set</string>        
+    <string name="inventory_algorithm">Inventory Algorithm</string>
+    <string name="frequency">Channel Frequencies</string>
+
+    <string name="require_default_link_profile">Setting completed.\r\nThe power of the device must be turned off and on.</string>
+    
+    <!-- Inventory Set -->
+    <string name="select_flag">Select Flag</string>
+    <string name="session_target">Session Target</string>
+    <string name="session_flag">Session Flag</string>
+    
+    <!-- Inventory Algorithm -->
+    <string name="inventory_tag_type">Inventory Tag Type</string>
+    <string name="algorithm">Algorithm</string>
+    <string name="start_q">Start Q</string>
+    <string name="min_q">Min Q</string>
+    <string name="max_q">Max Q</string>
+    
+    <!-- Selection Mask -->
+    <string name="mask_target">Target</string>
+    <string name="mask_action">Action</string>
+    <string name="mask_pattern">Pattern</string>
+    <string name="bank">Bank</string>
+    <string name="offset">Offset</string>
+    <string name="length">Length</string>
+    
+    <string name="display_pc">Display PC</string>
+    <string name="continuous_mode">Continuous Mode</string>
+    <string name="report_mode">Report Mode</string>
+	
+    <!-- Option -->
+    <string name="option_group_device">Device Options</string>
+    <string name="option_group_rfid">RFID Options</string>
+    <string name="option_group_barcode">Barcode Options</string>
+
+    <string name="read_memory_value">Read Memory Value</string>
+    <string name="read_memory_param">Read Memory Parameter</string>
+
+    <string-array name="suppotedReaderClasses">
+        <item>beetech.app.readersew.UnitechReader|EA520</item>
+        <item>beetech.app.readersew.UnitechReader|EA630</item>
+        <item>beetech.app.readersew.UnitechReader|EA630Plus</item>
+
+        <!--        <item>beetech.app.readers.UnitechReaderV0|RP902</item>-->
+        <item>beetech.app.readers.UnitechReaderV0|HT730</item>
+        <item>beetech.app.readers.UnitechReaderV0|RG768</item>
+        <!--        <item>beetech.app.readers.UnitechReaderV0|Unknown</item>-->
+        <item>beetech.app.readers.UrovoDT50P|Urovo DT50P</item>
+        <item>beetech.app.readers.ChainwayReader|Chainway C72</item>
+        <item>beetech.app.readers.ChainwayReader|Chainway C5</item>
+    </string-array>
+    <!-- Display labels separate from values -->
+    <string-array name="supportedReaderLabels">
+        <item>EA520</item>
+        <item>EA630</item>
+        <item>EA630Plus</item>
+        <item>HT730</item>
+        <item>RG768</item>
+        <item>Urovo DT50P</item>
+        <item>Chainway C72</item>
+        <item>Chainway C5</item>
+    </string-array>
+
+    <string-array name="buttonActions">
+        <item>Scan barcode</item>
+        <item>Read RFID</item>
+    </string-array>
+
+    <!-- Unit -->
+    <string name="unit_ms">ms</string>
+    <string name="unit_sec">sec</string>
+    <string name="unit_word">word</string>
+    <string name="unit_bit">bit</string>
+    <string name="unit_dbm">dBm</string>
+    <string name="unit_times">times</string>
+</resources>

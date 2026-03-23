@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="customer_type_array">
+        <item>Tất cả</item>
+    </string-array>
+    <string-array name="file_status_array">
+        <item>Tất cả trạng thái</item>
+        <item>Active</item>
+        <item>Lost</item>
+        <item>Discarded</item>
+    </string-array>
+    <string-array name="workflow_type_array">
+        <item>Thu gom đồ bẩn (Department -> Laundry)</item>
+        <item>Giao đồ sạch (Laundry -> Department)</item>
+        <item>Chuyển kho nội bộ (Location -> Location)</item>
+    </string-array>
+    <color name="beetech_accent">#FFA000</color>
+    <color name="beetech_blue">#0059B2</color>
+    <color name="beetech_blue_dark">#004080</color>
+    <color name="beetech_blue_light">#3385D6</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#F5F5F5</color>
+    <color name="white">#FFFFFF</color>
+    <string name="action_login">Đăng nhập</string>
+    <string name="action_logout">Đăng xuất</string>
+    <string name="action_write_all">Ghi tất cả</string>
+    <string name="app_name">Beetech TMS</string>
+    <string name="error_field_empty">Trường này không được để trống</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="hint_username">Tên đăng nhập</string>
+    <string name="login_subtitle">Hệ thống Quản lý Đồ vải Beetech</string>
+    <string name="login_title">Đăng nhập</string>
+    <string name="msg_confirm_write_all">Bạn có chắc chắn muốn ghi thẻ cho tất cả sản phẩm đã chọn?</string>
+    <string name="title_files">Sản phẩm</string>
+    <string name="title_inventory">Kiểm kê</string>
+    <string name="title_locate">Tìm kiếm</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="title_workflow">Giao dịch</string>
+    <string name="title_write_tag">Ghi thẻ</string>
+    <style name="ShapeAppearance.App.Circle" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">50%</item>
+    </style>
+    <style name="ShapeAppearance.App.Pill" parent="ShapeAppearance.Material3.MediumComponent">
+        <item name="cornerSize">28dp</item>
+    </style>
+    <style name="ShapeAppearance.App.Rounded" parent="ShapeAppearance.Material3.SmallComponent">
+        <item name="cornerSize">12dp</item>
+    </style>
+    <style name="Theme.BeetechTMS" parent="Theme.Material3.Light.NoActionBar">
+        <item name="colorPrimary">@color/beetech_blue</item>
+        <item name="colorPrimaryVariant">@color/beetech_blue_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorSecondary">@color/beetech_accent</item>
+        <item name="colorOnSecondary">@color/black</item>
+        <item name="android:statusBarColor">@color/beetech_blue_dark</item>
+        <item name="materialButtonStyle">@style/Widget.App.Button</item>
+        <item name="textInputStyle">@style/Widget.App.TextInputLayout</item>
+    </style>
+    <style name="Widget.App.Button" parent="Widget.Material3.Button">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Pill</item>
+    </style>
+    <style name="Widget.App.Button.OutlinedButton" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Pill</item>
+    </style>
+    <style name="Widget.App.TextInputLayout" parent="Widget.Material3.TextInputLayout.OutlinedBox">
+        <item name="shapeAppearance">@style/ShapeAppearance.App.Rounded</item>
+    </style>
+</resources>

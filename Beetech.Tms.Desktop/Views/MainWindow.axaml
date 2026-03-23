@@ -1,0 +1,677 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="using:Beetech.Tms.Desktop.ViewModels"
+        xmlns:material="using:Material.Icons.Avalonia"
+        xmlns:views="clr-namespace:Beetech.Tms.Desktop.Views;assembly=Beetech.Tms.Desktop"
+        xmlns:converters="clr-namespace:Beetech.Tms.Desktop.Converters;assembly=Beetech.Tms.Desktop"
+        x:Class="Beetech.Tms.Desktop.Views.MainWindow"
+        x:DataType="vm:MainWindowViewModel"
+        Title="Beetech TMS - RFID Desktop Client"
+        Width="1280" Height="850"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="30"
+        ExtendClientAreaChromeHints="NoChrome">
+
+    <Design.DataContext>
+        <vm:MainWindowViewModel/>
+    </Design.DataContext>
+
+    <DockPanel>
+        <!-- CUSTOM TITLE BAR -->
+        <Border DockPanel.Dock="Top" Background="{StaticResource TmsBlueBrush}" Height="30">
+            <Grid ColumnDefinitions="Auto,*,Auto">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0">
+                    <Image Source="/Assets/logo.png" Width="18" Height="18" VerticalAlignment="Center"/>
+                    <TextBlock Text="{Binding L[AppTitleShort]}" 
+                               Foreground="White" 
+                               VerticalAlignment="Center" 
+                               FontSize="12" 
+                               FontWeight="SemiBold"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+
+                <!-- Drag Area -->
+                <Border Grid.Column="1" Background="Transparent" IsHitTestVisible="True" PointerPressed="OnPointerPressed"/>
+
+                <!-- Window Control Buttons -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal">
+                    <Button Width="46" Height="30" Background="Transparent" BorderThickness="0" 
+                            Click="Minimize_Click" ToolTip.Tip="Minimize" Classes="titlebar-btn">
+                        <Path Data="M0,0 L10,0" Stroke="White" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button Width="46" Height="30" Background="Transparent" BorderThickness="0" 
+                            Click="Maximize_Click" ToolTip.Tip="Maximize" Classes="titlebar-btn">
+                        <Path Data="M1,1 L9,1 L9,9 L1,9 Z" Stroke="White" StrokeThickness="1.5" Fill="Transparent" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                    <Button Width="46" Height="30" Background="Transparent" BorderThickness="0" 
+                            Click="Close_Click" ToolTip.Tip="Close" Classes="titlebar-btn close">
+                        <Path Data="M0,0 L8,8 M8,0 L0,8" Stroke="White" StrokeThickness="1.5" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- TOOLBAR (Refined for Premium Look) -->
+        <Border DockPanel.Dock="Top" Background="White" Height="60" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1" BoxShadow="0 1 3 0 #10000000">
+            <Grid Margin="15,0" ColumnDefinitions="Auto,*,Auto">
+                <!-- Device Controls (Left) -->
+                <StackPanel Grid.Column="0" Orientation="Horizontal" Spacing="10">
+                     <Button Classes="toolbar primary" Command="{Binding ConnectCommand}" Height="40" CornerRadius="20" Padding="15,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <material:MaterialIcon Kind="Power" Width="20" Height="20" 
+                                                   Foreground="{Binding IsReaderConnected, Converter={StaticResource BoolToGreenBrush}}"/>
+                            <TextBlock Text="{Binding StatusText}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator Width="1" Background="#E5E7EB" Margin="5,12" Height="24"/>
+
+                    <Button Classes="toolbar" Command="{Binding ToggleInventoryCommand}" 
+                            IsEnabled="{Binding IsReaderConnected}" Height="40" CornerRadius="20" Padding="15,0"
+                            Background="{Binding IsInventoryActive, Converter={StaticResource BoolToBlueBrush}}">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <material:MaterialIcon Kind="Radar" Width="20" Height="20" 
+                                                   Foreground="{Binding IsInventoryActive, Converter={StaticResource BoolToWhiteBrush}}"
+                                                   Classes.spinning="{Binding IsInventoryActive}"/>
+                            <TextBlock Text="{Binding InventoryButtonText}" VerticalAlignment="Center" FontSize="14" FontWeight="Bold"
+                                       Foreground="{Binding IsInventoryActive, Converter={StaticResource BoolToWhiteBrush}}"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+                
+                <!-- Navigation Items (Middle) -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" Spacing="8">
+                    <Button Command="{Binding NavigateToInventoryAuditCommand}" IsVisible="{Binding IsInventoryAuditVisible}"
+                            Classes="toolbar-nav" Classes.active="{Binding IsInventoryAuditActive}" ToolTip.Tip="{Binding L[Inventory]}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="ClipboardCheck" Width="18" Height="18"/>
+                            <TextBlock Text="{Binding L[Inventory]}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding NavigateToCondemnedCommand}" IsVisible="{Binding IsCondemnedVisible}"
+                            Classes="toolbar-nav" Classes.active="{Binding IsCondemnedActive}" ToolTip.Tip="{Binding L[Condemned]}">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="DeleteForever" Width="18" Height="18" Foreground="#EF4444"/>
+                            <TextBlock Text="{Binding L[Condemned]}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator Width="1" Background="#E5E7EB" Margin="5,15" Height="20"/>
+
+                    <Button Command="{Binding ShowRegistrationCommand}" IsVisible="{Binding IsTagRegistrationVisible}"
+                            Classes="toolbar-nav" Classes.active="{Binding IsRegistrationViewActive}" ToolTip.Tip="Tag Registration">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="BarcodeScan" Width="18" Height="18"/>
+                            <TextBlock Text="{Binding L[Register]}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Button Command="{Binding ShowSettingsCommand}" IsVisible="{Binding IsSettingsVisible}"
+                            Classes="toolbar-nav" Classes.active="{Binding IsSettingsViewActive}" ToolTip.Tip="Settings">
+                        <StackPanel Orientation="Horizontal" Spacing="6">
+                            <material:MaterialIcon Kind="Cog" Width="18" Height="18"/>
+                            <TextBlock Text="{Binding L[Settings]}" FontSize="12" FontWeight="SemiBold" VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+
+                <!-- Session Actions (Right) -->
+                <StackPanel Grid.Column="2" Orientation="Horizontal" Spacing="10" VerticalAlignment="Center" Margin="0,0,10,0">
+
+                    <Button Classes="toolbar warning" Command="{Binding ClearScansCommand}" Height="40" CornerRadius="20" Padding="15,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <material:MaterialIcon Kind="DeleteSweep" Width="20" Height="20" Foreground="#F59E0B"/>
+                            <TextBlock Text="{Binding L[ClearAll]}" VerticalAlignment="Center" FontSize="13" FontWeight="Bold"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Separator Width="1" Background="#E5E7EB" Margin="5,12" Height="24"/>
+
+                    <Button Classes="toolbar danger" Command="{Binding LogoutCommand}" 
+                            Height="40" CornerRadius="20" Padding="15,0" Margin="0,0,20,0">
+                        <StackPanel Orientation="Horizontal" Spacing="8">
+                            <material:MaterialIcon Kind="Logout" Width="18" Height="18" Foreground="#EF4444"/>
+                            <TextBlock Text="{Binding L[Logout]}" VerticalAlignment="Center" FontSize="13" FontWeight="SemiBold"/>
+                        </StackPanel>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- STATUS BAR -->
+        <Border DockPanel.Dock="Bottom" Background="{StaticResource TmsBlueBrush}" Height="30">
+            <Grid ColumnDefinitions="Auto,Auto,Auto,*,Auto" Margin="10,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0" Spacing="5" MinWidth="130">
+                    <material:MaterialIcon Kind="Antenna" Foreground="White" Width="16" Height="16"/>
+                    <TextBlock Text="{Binding L[ReaderLabel]}" Foreground="White" FontSize="11"/>
+                    <TextBlock Text="{Binding ReaderStatus}" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                </StackPanel>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,15,0" Spacing="5" MinWidth="110">
+                    <material:MaterialIcon Kind="Web" Foreground="White" Width="16" Height="16"/>
+                    <TextBlock Text="{Binding L[ApiLabel]}" Foreground="White" FontSize="11"/>
+                    <TextBlock Text="{Binding ApiStatus}" Foreground="White" FontWeight="Bold" FontSize="11"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0" Spacing="5" MinWidth="150">
+                    <material:MaterialIcon Kind="Account" Foreground="White" Width="16" Height="16"/>
+                    <TextBlock Text="{Binding L[UserLabel]}" Foreground="White" FontSize="11"/>
+                    <TextBlock Text="{Binding CurrentUser}" Foreground="White" FontWeight="Bold" TextTrimming="CharacterEllipsis" FontSize="11"/>
+                </StackPanel>
+                <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Spacing="5">
+                    <material:MaterialIcon Kind="ChartBar" Foreground="White" Width="16" Height="16"/>
+                    <TextBlock Text="{Binding SummaryText}" Foreground="White" FontWeight="SemiBold" VerticalAlignment="Center" FontSize="11"/>
+                </StackPanel>
+                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right" Spacing="5" MinWidth="50">
+                    <material:MaterialIcon Kind="Information" Foreground="White" Width="16" Height="16"/>
+                    <TextBlock Text="{Binding ActionStatus}" Foreground="White" VerticalAlignment="Center" TextTrimming="CharacterEllipsis" FontSize="11"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+
+        <!-- MAIN CONTENT -->
+        <Grid ColumnDefinitions="100,*">
+            <!-- SIDEBAR (Dynamic & Professional) -->
+            <Border Background="#111827" BorderBrush="#1F2937" BorderThickness="0,0,1,0">
+                <ScrollViewer VerticalScrollBarVisibility="Auto">
+                    <StackPanel Spacing="2" Margin="5,10">
+                        <!-- RECEPTION GROUP -->
+                        <Border IsVisible="{Binding IsReceptionVisible}" Margin="0,15,0,5">
+                            <StackPanel>
+                                <TextBlock Text="{Binding L[Reception]}" FontSize="10" FontWeight="Black" Foreground="#60A5FA" 
+                                           HorizontalAlignment="Left" Margin="10,0,0,0" LetterSpacing="1"/>
+                                <Separator Background="#1E293B" Height="1" Margin="10,4,10,0" Opacity="0.5"/>
+                            </StackPanel>
+                        </Border>
+                        
+                        <Button Command="{Binding NavigateToDirtyInboundCommand}" IsVisible="{Binding IsInboundDirtyVisible}"
+                                ToolTip.Tip="{Binding L[DirtyInbound]}" Classes="sidebar-link" Classes.active="{Binding IsInboundDirtyActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TrayArrowDown" Width="22" Height="22"/>
+                                <TextBlock Text="{Binding L[DirtyInbound]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToCleanInboundCommand}" IsVisible="{Binding IsInboundHotelVisible}"
+                                ToolTip.Tip="{Binding L[CleanInbound]}" Classes="sidebar-link" Classes.active="{Binding IsInboundHotelActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TrayArrowDown" Width="22" Height="22" Foreground="#10B981"/>
+                                <TextBlock Text="{Binding L[CleanInbound]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- PROCESSING GROUP -->
+                        <Border IsVisible="{Binding IsProcessingVisible}" Margin="0,15,0,5">
+                            <StackPanel>
+                                <TextBlock Text="{Binding L[Processing]}" FontSize="10" FontWeight="Black" Foreground="#60A5FA" 
+                                           HorizontalAlignment="Left" Margin="10,0,0,0" LetterSpacing="1"/>
+                                <Separator Background="#1E293B" Height="1" Margin="10,4,10,0" Opacity="0.5"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Command="{Binding NavigateToWashingCommand}" IsVisible="{Binding IsWashingVisible}"
+                                ToolTip.Tip="{Binding L[Washing]}" Classes="sidebar-link" Classes.active="{Binding IsWashingActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="Waves" Width="22" Height="22" Foreground="#60A5FA"/>
+                                <TextBlock Text="{Binding L[Washing]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToDryingCommand}" IsVisible="{Binding IsDryingVisible}"
+                                ToolTip.Tip="{Binding L[Drying]}" Classes="sidebar-link" Classes.active="{Binding IsDryingActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="Fire" Width="22" Height="22" Foreground="#F87171"/>
+                                <TextBlock Text="{Binding L[Drying]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToIroningCommand}" IsVisible="{Binding IsIroningVisible}"
+                                ToolTip.Tip="{Binding L[Ironing]}" Classes="sidebar-link" Classes.active="{Binding IsIroningActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="Equal" Width="22" Height="22" Foreground="#A78BFA"/>
+                                <TextBlock Text="{Binding L[Ironing]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToFoldingCommand}" IsVisible="{Binding IsFoldingVisible}"
+                                ToolTip.Tip="{Binding L[Folding]}" Classes="sidebar-link" Classes.active="{Binding IsFoldingActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TshirtCrew" Width="22" Height="22" Foreground="#34D399"/>
+                                <TextBlock Text="{Binding L[Folding]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- DISPATCH GROUP -->
+                        <Border IsVisible="{Binding IsDispatchVisible}" Margin="0,15,0,5">
+                            <StackPanel>
+                                <TextBlock Text="{Binding L[Dispatch]}" FontSize="10" FontWeight="Black" Foreground="#60A5FA" 
+                                           HorizontalAlignment="Left" Margin="10,0,0,0" LetterSpacing="1"/>
+                                <Separator Background="#1E293B" Height="1" Margin="10,4,10,0" Opacity="0.5"/>
+                            </StackPanel>
+                        </Border>
+
+                        <Button Command="{Binding NavigateToDirtyOutboundCommand}" IsVisible="{Binding IsOutboundDirtyVisible}"
+                                ToolTip.Tip="{Binding L[DirtyOutbound]}" Classes="sidebar-link" Classes.active="{Binding IsOutboundDirtyActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TrayArrowUp" Width="22" Height="22" Foreground="#F59E0B"/>
+                                <TextBlock Text="{Binding L[DirtyOutbound]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToCleanOutboundCommand}" IsVisible="{Binding IsOutboundLaundryVisible}"
+                                ToolTip.Tip="{Binding L[CleanOutbound]}" Classes="sidebar-link" Classes.active="{Binding IsOutboundLaundryActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TrayArrowUp" Width="22" Height="22" Foreground="#3B82F6"/>
+                                <TextBlock Text="{Binding L[CleanOutbound]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center" TextWrapping="Wrap" TextAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToPackingCommand}" IsVisible="{Binding IsPackingVisible}"
+                                ToolTip.Tip="{Binding L[Packing]}" Classes="sidebar-link" Classes.active="{Binding IsPackingActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="PackageVariant" Width="22" Height="22" Foreground="#EC4899"/>
+                                <TextBlock Text="{Binding L[Packing]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Command="{Binding NavigateToReturnCommand}" IsVisible="{Binding IsReturnVisible}"
+                                ToolTip.Tip="{Binding L[Return]}" Classes="sidebar-link" Classes.active="{Binding IsReturnActive}">
+                            <StackPanel>
+                                <material:MaterialIcon Kind="TruckDelivery" Width="22" Height="22" Foreground="#10B981"/>
+                                <TextBlock Text="{Binding L[Return]}" FontSize="10" Margin="0,3,0,0" HorizontalAlignment="Center"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- DYNAMIC AREA -->
+            <Grid Grid.Column="1">
+                <!-- Bulk Scan View (Visible when IsBulkScanViewVisible is True) -->
+                <ScrollViewer IsVisible="{Binding IsBulkScanViewVisible}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <Border Background="#F3F4F6" Padding="20">
+                        <Grid RowDefinitions="Auto,*">
+                            <!-- HEADER CARD -->
+                            <Border Grid.Row="0" Background="White" CornerRadius="12" Padding="25" Margin="0,0,0,15" BoxShadow="0 2 10 0 #11000000">
+                                <StackPanel Spacing="5">
+                                    <TextBlock Text="{Binding CurrentOperationName}" FontSize="28" FontWeight="Heavy" Foreground="{StaticResource TmsBlueBrush}"/>
+                                    <TextBlock Text="{Binding CurrentOperationSubtitle}" Foreground="#6B7280" FontSize="13"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Grid Grid.Row="1" ColumnDefinitions="300,*">
+                                <!-- LEFT PANEL (Simplified Operation Settings) -->
+                                <StackPanel Grid.Column="0" Spacing="25" Margin="0,0,20,0">
+                                    <!-- Stats Summary -->
+                                    <Border CornerRadius="15" Background="White" BoxShadow="0 2 10 0 #11000000" Padding="20">
+                                        <StackPanel Spacing="10">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="{Binding L[ActiveSession]}" FontSize="12" FontWeight="Heavy" Foreground="#6B7280"/>
+                                                <StackPanel Grid.Column="1" Orientation="Horizontal" Spacing="5" IsVisible="{Binding TargetQuantityText, Converter={x:Static StringConverters.IsNotNullOrEmpty}}">
+                                                    <material:MaterialIcon Kind="Bullseye" Foreground="#6B7280" Width="14"/>
+                                                    <TextBlock Text="{Binding TargetQuantityText}" FontSize="12" FontWeight="Bold" Foreground="#6B7280"/>
+                                                </StackPanel>
+                                            </Grid>
+                                            
+                                            <StackPanel Orientation="Horizontal" Spacing="10" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding SummaryText}" FontSize="24" FontWeight="Black" Foreground="{StaticResource TmsBlueBrush}"/>
+                                                <Border Background="#FEE2E2" CornerRadius="10" Padding="8,2" IsVisible="{Binding IsMismatchDetected}">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <material:MaterialIcon Kind="AlertCircle" Foreground="#EF4444" Width="14"/>
+                                                        <TextBlock Text="{Binding L[Mismatch]}" FontSize="10" FontWeight="Bold" Foreground="#EF4444" VerticalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                            
+                                            <TextBlock Text="{Binding ActionStatus}" FontSize="12" Foreground="#9CA3AF" TextTrimming="CharacterEllipsis"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Inventory Audit Summary -->
+                                    <Border CornerRadius="15" Background="White" BoxShadow="0 2 10 0 #11000000" Padding="20"
+                                            IsVisible="{Binding IsInventoryAuditMode}">
+                                        <StackPanel Spacing="12">
+                                            <TextBlock Text="Audit Summary" FontSize="12" FontWeight="Heavy" Foreground="#6B7280"/>
+                                            <Separator Background="#E5E7EB" Height="1"/>
+
+                                            <!-- Primary: Items in this location (Matched / Expected) -->
+                                            <Border Background="#EFF6FF" CornerRadius="10" Padding="14,10">
+                                                <Grid RowDefinitions="Auto,Auto,Auto">
+                                                    <TextBlock Text="Items in this location" FontSize="11" FontWeight="Bold" Foreground="#60A5FA"/>
+                                                    <StackPanel Grid.Row="1" Orientation="Horizontal" Spacing="4" VerticalAlignment="Center" Margin="0,4,0,0">
+                                                        <TextBlock Text="{Binding MatchedCount}" FontSize="32" FontWeight="Black" Foreground="#1D4ED8"/>
+                                                        <TextBlock Text="/" FontSize="22" FontWeight="Light" Foreground="#93C5FD" VerticalAlignment="Center" Margin="2,2,2,0"/>
+                                                        <TextBlock Text="{Binding ExpectedCount}" FontSize="22" FontWeight="Bold" Foreground="#93C5FD" VerticalAlignment="Center" Margin="0,4,0,0"/>
+                                                    </StackPanel>
+                                                    <ProgressBar Grid.Row="2" Minimum="0" Maximum="{Binding ExpectedCount}"
+                                                                 Value="{Binding MatchedCount}"
+                                                                 Height="5" CornerRadius="3" Margin="0,6,0,0"
+                                                                 Background="#BFDBFE" Foreground="#2563EB"/>
+                                                </Grid>
+                                            </Border>
+
+                                            <!-- Wrong Location -->
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Background="#FEF3C7" CornerRadius="6" Width="26" Height="26" VerticalAlignment="Center">
+                                                    <material:MaterialIcon Kind="MapMarkerAlert" Foreground="#D97706" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="Wrong Location" FontSize="12" FontWeight="SemiBold" Foreground="#374151" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding WrongLocationCount}" FontSize="16" FontWeight="Black" Foreground="#D97706" VerticalAlignment="Center"/>
+                                            </Grid>
+
+                                            <!-- Unknown -->
+                                            <Grid ColumnDefinitions="Auto,*,Auto">
+                                                <Border Background="#FEE2E2" CornerRadius="6" Width="26" Height="26" VerticalAlignment="Center">
+                                                    <material:MaterialIcon Kind="HelpCircle" Foreground="#EF4444" Width="14" Height="14" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="1" Text="Unknown / Not Registered" FontSize="12" FontWeight="SemiBold" Foreground="#374151" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding UnknownCount}" FontSize="16" FontWeight="Black" Foreground="#EF4444" VerticalAlignment="Center"/>
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Packing Settings -->
+                                    <Border CornerRadius="15" Background="White" BoxShadow="0 2 10 0 #11000000" Padding="20"
+                                            IsVisible="{Binding IsPackingSpecificVisible}">
+                                        <StackPanel Spacing="12">
+                                            <Grid ColumnDefinitions="*,Auto">
+                                                <TextBlock Text="{Binding L[PackingContainers]}" FontSize="11" FontWeight="Heavy" Foreground="#6B7280" VerticalAlignment="Center"/>
+                                                <Button Grid.Column="1" Command="{Binding AddPackingUnitCommand}" Classes="toolbar" Padding="8,4" CornerRadius="6">
+                                                    <StackPanel Orientation="Horizontal" Spacing="4">
+                                                        <material:MaterialIcon Kind="Plus" Width="14"/>
+                                                        <TextBlock Text="{Binding L[AddBox]}" FontSize="11" FontWeight="Bold"/>
+                                                    </StackPanel>
+                                                </Button>
+                                            </Grid>
+
+                                            <ListBox Background="#F9FAFB" CornerRadius="8" ItemsSource="{Binding CurrentPackingUnits}" 
+                                                     SelectedItem="{Binding SelectedPackingUnit}" MinHeight="60" MaxHeight="120">
+                                                <ListBox.ItemTemplate>
+                                                    <DataTemplate>
+                                                        <Grid ColumnDefinitions="*,Auto">
+                                                            <StackPanel>
+                                                                <TextBlock Text="{Binding Code}" FontSize="12" FontWeight="Bold"/>
+                                                                <TextBlock Text="{Binding Weight, StringFormat='\{0\} kg'}" FontSize="10" Foreground="#6B7280"/>
+                                                            </StackPanel>
+                                                            <Button Grid.Column="1" Command="{Binding $parent[Window].((vm:MainWindowViewModel)DataContext).RemovePackingUnitCommand}" 
+                                                                    CommandParameter="{Binding}"
+                                                                    Background="Transparent" BorderThickness="0" Padding="4">
+                                                                <material:MaterialIcon Kind="Close" Width="14" Foreground="#EF4444"/>
+                                                            </Button>
+                                                        </Grid>
+                                                    </DataTemplate>
+                                                </ListBox.ItemTemplate>
+                                            </ListBox>
+                                            
+                                            <TextBlock Text="{Binding L[ScansAssigned]}" FontSize="10" Foreground="#9CA3AF" HorizontalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                    <!-- Operation Settings -->
+                                    <Border CornerRadius="15" Background="White" BoxShadow="0 2 10 0 #11000000" Padding="20">
+                                        <StackPanel Spacing="15">
+                                            <StackPanel Spacing="5" IsVisible="{Binding IsSourceTransactionRequired}">
+                                                <TextBlock Text="{Binding L[ReferenceTransaction]}" FontWeight="Bold" Foreground="{StaticResource TmsBlueBrush}"/>
+                                                <ComboBox ItemsSource="{Binding SourceTransactions}" 
+                                                          SelectedItem="{Binding SelectedSourceTransaction}"
+                                                          PlaceholderText="{Binding L[SelectSourceTransaction]}" HorizontalAlignment="Stretch" CornerRadius="8">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding DisplayText}"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="5" IsVisible="{Binding IsCustomerRequired}">
+                                                <TextBlock Text="{Binding L[Customer]}" FontWeight="Bold" Foreground="{StaticResource TmsBlueBrush}"/>
+                                                <ComboBox ItemsSource="{Binding Customers}" 
+                                                          SelectedItem="{Binding SelectedCustomer}"
+                                                          PlaceholderText="{Binding L[SelectCustomer]}" HorizontalAlignment="Stretch" CornerRadius="8">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Name}"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="5">
+                                                <TextBlock Text="{Binding L[Location]}" FontWeight="Bold" Foreground="{StaticResource TmsBlueBrush}"/>
+                                                <ComboBox ItemsSource="{Binding Locations}" 
+                                                          SelectedItem="{Binding SelectedLocation}"
+                                                          IsEnabled="{Binding IsLocationEnabled}"
+                                                          PlaceholderText="{Binding L[SelectLocation]}" HorizontalAlignment="Stretch" CornerRadius="8">
+                                                    <ComboBox.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <TextBlock Text="{Binding Name}"/>
+                                                        </DataTemplate>
+                                                    </ComboBox.ItemTemplate>
+                                                </ComboBox>
+                                            </StackPanel>
+
+                                            <StackPanel Spacing="5">
+                                                <TextBlock Text="{Binding L[TransactionNotes]}" FontWeight="Bold" Foreground="{StaticResource TmsBlueBrush}"/>
+                                                <TextBox Text="{Binding Notes}" AcceptsReturn="True" Height="80" 
+                                                         Watermark="{Binding L[EnterNotes]}" CornerRadius="8"/>
+                                            </StackPanel>
+
+                                            <Grid ColumnDefinitions="*,*" Margin="0,10,0,0">
+                                                <Button Grid.Column="0" Command="{Binding SubmitScansCommand}" 
+                                                        Classes="toolbar success" Height="45" Margin="0,0,5,0">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <material:MaterialIcon Kind="CheckCircle"/>
+                                                        <TextBlock Text="{Binding L[Submit]}" FontWeight="Black"/>
+                                                    </StackPanel>
+                                                </Button>
+                                               
+                                                <!--
+                                                <Button Grid.Column="1" Command="{Binding ResetSessionCommand}" 
+                                                        Classes="toolbar warning" Height="45" Margin="5,0,0,0">
+                                                    <StackPanel Orientation="Horizontal" Spacing="8">
+                                                        <material:MaterialIcon Kind="Refresh"/>
+                                                        <TextBlock Text="{Binding L[Reset]}" FontWeight="Black"/>
+                                                    </StackPanel>
+                                                </Button>
+                                                -->
+                                            </Grid>
+                                        </StackPanel>
+                                    </Border>
+                                </StackPanel>
+
+                                <!-- RIGHT PANEL (Original Scan Log) -->
+                                <Border Grid.Column="1" Background="White" CornerRadius="15" BoxShadow="0 2 10 0 #11000000" ClipToBounds="True">
+                                    <DockPanel>
+                                        <Border DockPanel.Dock="Top" Background="#F9FAFB" Padding="15,10" BorderBrush="#E5E7EB" BorderThickness="0,0,0,1">
+                                            <Grid ColumnDefinitions="*,Auto,Auto">
+                                                <TextBox Watermark="🔍 Search scanned items..." 
+                                                         Text="{Binding SearchText}"
+                                                         CornerRadius="20" Height="38" Padding="15,0"/>
+                                                <ComboBox Grid.Column="1" Margin="10,0,0,0"
+                                                          ItemsSource="{Binding StatusFilterOptions}" 
+                                                          SelectedItem="{Binding SelectedStatusFilter}" 
+                                                          Width="120" CornerRadius="8"/>
+                                            </Grid>
+                                        </Border>
+
+                                        <DataGrid ItemsSource="{Binding FilteredScans}"
+                                                  AutoGenerateColumns="False" IsReadOnly="False" GridLinesVisibility="Horizontal"
+                                                  BorderThickness="0" Background="Transparent">
+                                            <DataGrid.Columns>
+                                                <DataGridTextColumn Header="{Binding L[HashMark]}" Binding="{Binding Number}" IsReadOnly="True" Width="50"/>
+                                                <DataGridTextColumn Header="{Binding L[Count]}" Binding="{Binding Count}" IsReadOnly="True" Width="60"/>
+                                                <DataGridTextColumn Header="{Binding L[Time]}" Binding="{Binding Time}" IsReadOnly="True" Width="100"/>
+                                                <DataGridTextColumn Header="{Binding L[ItemCode]}" Binding="{Binding Epc}" IsReadOnly="True" Width="150"/>
+                                                <DataGridTextColumn Header="{Binding L[Category]}" Binding="{Binding CategoryName}" IsReadOnly="True" Width="120"/>
+                                                <DataGridTextColumn Header="{Binding L[CurrentLocation]}" Binding="{Binding CurrentLocation}" IsReadOnly="True" Width="150"/>
+                                                <DataGridTemplateColumn Header="{Binding L[StatusHeader]}" IsReadOnly="True" Width="145">
+                                                    <DataGridTemplateColumn.CellTemplate>
+                                                        <DataTemplate>
+                                                            <Border Margin="4,3" CornerRadius="6" Padding="7,3"
+                                                                    Background="{Binding RowBackground}"
+                                                                    HorizontalAlignment="Left" VerticalAlignment="Center">
+                                                                <StackPanel Orientation="Horizontal" Spacing="5">
+                                                                    <!-- Matched -->
+                                                                    <material:MaterialIcon Kind="CheckCircle" Width="14" Height="14"
+                                                                                          Foreground="#059669" IsVisible="{Binding IsMatched}"/>
+                                                                    <!-- Wrong Location -->
+                                                                    <material:MaterialIcon Kind="MapMarkerAlert" Width="14" Height="14"
+                                                                                          Foreground="#D97706" IsVisible="{Binding IsWrongLocation}"/>
+                                                                    <!-- Wrong Flow -->
+                                                                    <material:MaterialIcon Kind="AlertOctagon" Width="14" Height="14"
+                                                                                          Foreground="#C2410C" IsVisible="{Binding IsWrongFlow}"/>
+                                                                    <!-- Unknown -->
+                                                                    <material:MaterialIcon Kind="HelpCircle" Width="14" Height="14"
+                                                                                          Foreground="#EF4444" IsVisible="{Binding IsUnknown}"/>
+                                                                    <!-- Error -->
+                                                                    <material:MaterialIcon Kind="AlertCircle" Width="14" Height="14"
+                                                                                          Foreground="#DC2626" IsVisible="{Binding IsError}"/>
+                                                                    <!-- Scanned (normal) -->
+                                                                    <material:MaterialIcon Kind="TagCheck" Width="14" Height="14"
+                                                                                          Foreground="#2563EB" IsVisible="{Binding IsScanned}"/>
+                                                                    <!-- Duplicate -->
+                                                                    <material:MaterialIcon Kind="ContentDuplicate" Width="14" Height="14"
+                                                                                          Foreground="#F59E0B" IsVisible="{Binding IsDuplicate}"/>
+                                                                    <TextBlock Text="{Binding Status}" FontSize="11" FontWeight="SemiBold"
+                                                                               Foreground="{Binding StatusColor}" VerticalAlignment="Center"/>
+                                                                </StackPanel>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </DataGridTemplateColumn.CellTemplate>
+                                                </DataGridTemplateColumn>
+                                                <DataGridTextColumn Header="{Binding L[BoxBag]}" Binding="{Binding PackingUnitCode}" IsReadOnly="True" Width="100"/>
+                                                <DataGridTextColumn Header="{Binding L[Details]}" Binding="{Binding Details}" Width="*"/>
+                                            </DataGrid.Columns>
+                                        </DataGrid>
+                                    </DockPanel>
+                                </Border>
+                            </Grid>
+                        </Grid>
+                    </Border>
+                </ScrollViewer>
+
+                <!-- Sub-Views (Visible when IsBulkScanViewVisible is False) -->
+                <ScrollViewer IsVisible="{Binding !IsBulkScanViewVisible}" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <ContentControl Content="{Binding CurrentView}">
+                        <ContentControl.DataTemplates>
+                            <DataTemplate DataType="vm:TagRegistrationViewModel">
+                                <views:TagRegistrationView DataContext="{Binding}"/>
+                            </DataTemplate>
+                            <DataTemplate DataType="vm:SettingsViewModel">
+                                <views:SettingsView DataContext="{Binding}"/>
+                            </DataTemplate>
+                        </ContentControl.DataTemplates>
+                    </ContentControl>
+                </ScrollViewer>
+            </Grid>
+        </Grid>
+
+
+    </DockPanel>
+
+    <Window.Styles>
+        <Style Selector="Button.toolbar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#E5E7EB"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <TransformOperationsTransition Property="RenderTransform" Duration="0:0:0.1"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.toolbar:hover">
+            <Setter Property="Background" Value="#F9FAFB"/>
+            <Setter Property="RenderTransform" Value="scale(1.02)"/>
+        </Style>
+        <Style Selector="Button.toolbar:pressed">
+            <Setter Property="RenderTransform" Value="scale(0.98)"/>
+        </Style>
+        
+        <Style Selector="Button.toolbar.success">
+            <Setter Property="Background" Value="{StaticResource TmsGreenBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+        <Style Selector="Button.toolbar.success:hover">
+            <Setter Property="Background" Value="#059669"/>
+        </Style>
+
+        <!-- Sidebar Styles -->
+        <Style Selector="Button.sidebar-link">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0,8"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Margin" Value="4,1"/>
+        </Style>
+        <Style Selector="Button.sidebar-link material|MaterialIcon">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.sidebar-link:hover">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.sidebar-link:hover material|MaterialIcon">
+            <Setter Property="Foreground" Value="White"/>
+        </Style>
+        <Style Selector="Button.sidebar-link.active">
+            <Setter Property="Background" Value="#1F2937"/>
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+        <Style Selector="Button.sidebar-link.active material|MaterialIcon">
+            <Setter Property="Foreground" Value="#FBBF24"/>
+        </Style>
+
+        <Style Selector="material|MaterialIcon.spinning">
+            <Style.Animations>
+                <Animation Duration="0:0:1" IterationCount="Infinite">
+                    <KeyFrame Cue="0%">
+                        <Setter Property="RotateTransform.Angle" Value="0" />
+                    </KeyFrame>
+                    <KeyFrame Cue="100%">
+                        <Setter Property="RotateTransform.Angle" Value="360" />
+                    </KeyFrame>
+                </Animation>
+            </Style.Animations>
+        </Style>
+
+        <!-- Title Bar Button Styles -->
+        <Style Selector="Button.titlebar-btn:hover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#33FFFFFF"/>
+        </Style>
+        <Style Selector="Button.titlebar-btn.close:hover /template/ ContentPresenter">
+            <Setter Property="Background" Value="#E81123"/>
+        </Style>
+
+
+        <Style Selector="Button.toolbar-nav">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                    <BrushTransition Property="Foreground" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+        <Style Selector="Button.toolbar-nav:hover">
+            <Setter Property="Background" Value="#F3F4F6"/>
+            <Setter Property="Foreground" Value="{StaticResource TmsBlueBrush}"/>
+        </Style>
+        <Style Selector="Button.toolbar-nav.active">
+            <Setter Property="Background" Value="#EFF6FF"/>
+            <Setter Property="Foreground" Value="{StaticResource TmsBlueBrush}"/>
+        </Style>
+
+    </Window.Styles>
+
+</Window>

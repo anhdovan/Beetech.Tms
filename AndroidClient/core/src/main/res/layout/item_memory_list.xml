@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TableLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="4dp"
+     >
+    
+    <!-- Address -->
+<!--     
+    <TableRow >
+        
+	    <TextView android:id="@+id/address1"
+	        style="@style/memory_address" />
+        
+	    <TextView android:id="@+id/address2"
+	        style="@style/memory_address" />
+	            
+	    <TextView android:id="@+id/address3"
+	        style="@style/memory_address" />
+	            
+	    <TextView android:id="@+id/address4"
+	        style="@style/memory_address" />
+	    
+    </TableRow>
+ -->
+     
+    <!-- Value -->
+    <TableRow >
+	    
+		<TextView android:id="@+id/value1"
+		    style="@style/memory_value" />
+	    
+		<TextView android:id="@+id/value2"
+		    style="@style/memory_value" />
+			    
+		<TextView android:id="@+id/value3"
+		    style="@style/memory_value" />
+			    
+		<TextView android:id="@+id/value4"
+		    style="@style/memory_value" />
+		
+    </TableRow>
+    
+</TableLayout>

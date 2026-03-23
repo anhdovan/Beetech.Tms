@@ -3,16 +3,23 @@
 @inject TmsService TmsService
 @inject NotificationService NotificationService
 @inject DialogService DialogService
+@inject IJSRuntime JS
+@inject IStringLocalizer<App> L
 
-<PageTitle>Textile Items - Beetech TMS</PageTitle>
+<PageTitle>@L["TextileItems"] - Beetech TMS</PageTitle>
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
-    <RadzenText Text="Textile Items" TextStyle="TextStyle.H4" class="rz-m-0" />
-    <RadzenButton Icon="add_circle_outline" Text="Register Item" Click="@OnAddItem" />
+    <RadzenText Text="@L["TextileItems"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+        <RadzenButton Icon="file_download" Text="@L["ExportExcel"]" Click="@OnExportExcel" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Flat" Disabled="@isLoading" />
+        <RadzenButton Icon="file_upload" Text="@L["ImportExcel"]" Click="@TriggerImport" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Disabled="@isLoading" />
+        <InputFile @ref="importInput" OnChange="@OnImportExcel" style="display:none" accept=".xlsx" />
+        <RadzenButton Icon="add_circle_outline" Text="@L["RegisterItem"]" Click="@OnAddItem" Disabled="@isLoading" />
+    </RadzenStack>
 </RadzenStack>
 
 <RadzenCard class="rz-mb-4">
-    <RadzenTextBox Placeholder="Search Code or Category..." Change="@OnSearch" style="width: 100%;" />
+    <RadzenTextBox Placeholder="@L["SearchCodeOrCategory"]" Change="@OnSearch" style="width: 100%;" />
 </RadzenCard>
 
 <RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
@@ -21,27 +28,29 @@
                 Data="@items" TItem="TextileItem" ColumnWidth="300px">
     <Columns>
         <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
-        <RadzenDataGridColumn Property="Code" Title="Item Code" Width="180px" />
-        <RadzenDataGridColumn Property="Category.Name" Title="Category" FilterMode="FilterMode.CheckBoxList">
+        <RadzenDataGridColumn Property="Code" Title="@L["ItemCode"]" Width="180px" />
+        <RadzenDataGridColumn Property="Category.Name" Title="@L["Category"]" FilterMode="FilterMode.CheckBoxList">
             <Template Context="item">
                 @item.Category?.Name
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="Status" Title="Status" FilterMode="FilterMode.CheckBoxList">
+        <RadzenDataGridColumn Property="Status" Title="@L["Status"]" FilterMode="FilterMode.CheckBoxList">
             <Template Context="item">
                 <RadzenBadge BadgeStyle="@GetStatusBadgeStyle(item.Status)" Text="@item.Status.ToString()" />
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="CurrentLocation.Name" Title="Location" FilterMode="FilterMode.CheckBoxList" />
-        <RadzenDataGridColumn Property="CurrentDepartment.Name" Title="Department" FilterMode="FilterMode.CheckBoxList">
+        <RadzenDataGridColumn Property="CurrentLocation.Name" Title="@L["Location"]" FilterMode="FilterMode.CheckBoxList" />
+        <RadzenDataGridColumn Property="CurrentDepartment.Name" Title="@L["Department"]" FilterMode="FilterMode.CheckBoxList">
             <Template Context="item">
                 @item.CurrentDepartment?.Name
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="WashCount" Title="Wash Count" Width="120px" />
-        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
+        <RadzenDataGridColumn Property="WashCount" Title="@L["WashCount"]" Width="120px" />
+        <RadzenDataGridColumn Title="@L["Actions"]" Sortable="false" Filterable="false" Width="120px" Frozen="true" FrozenPosition="FrozenColumnPosition.Right">
             <Template Context="item">
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
+                    <RadzenButton Icon="history" ButtonStyle="ButtonStyle.Secondary" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                  Click="@(() => ViewHistory(item))" Tooltip="@L["TraceHistory"]" />
                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
                                   Click="@(() => EditItem(item))" />
                     <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
@@ -56,6 +65,14 @@
     RadzenDataGrid<TextileItem> grid = null!;
     IEnumerable<TextileItem> items = new List<TextileItem>();
     string? searchText;
+    bool isLoading;
+    InputFile? importInput;
+
+    private async Task TriggerImport()
+    {
+        // Use JS to click the hidden input file
+        await JS.InvokeVoidAsync("document.querySelector('input[type=file]').click");
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -80,7 +97,7 @@
 
     async Task EditItem(TextileItem item)
     {
-        var result = await DialogService.OpenAsync<ItemEditDialog>(item.Id == 0 ? "Register Item" : "Edit Item",
+        var result = await DialogService.OpenAsync<ItemEditDialog>(item.Id == 0 ? L["RegisterItem"] : L["EditItem"],
             new Dictionary<string, object> { { "Item", item } }, new DialogOptions());
 
         if (result == true)
@@ -92,16 +109,76 @@
 
     async Task OnDeleteItem(TextileItem item)
     {
-        var confirm = await DialogService.Confirm($"Are you sure you want to delete item '{item.Code}'?", "Delete Item");
+        var confirm = await DialogService.Confirm(string.Format(L["ConfirmDeleteItem"], item.Code), L["DeleteItem"]);
         if (confirm == true)
         {
             var success = await TmsService.DeleteItemAsync(item.Id);
             if (success)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Item deleted" });
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["ItemDeleted"] });
                 await LoadData();
                 if (grid != null) await grid.Reload();
             }
+        }
+    }
+
+    async Task ViewHistory(TextileItem item)
+    {
+        await DialogService.OpenAsync<ItemHistoryDialog>($"{L["RFIDTrace"]}: {item.Code}",
+            new Dictionary<string, object> { { "Item", item } }, 
+            new DialogOptions { Width = "800px" });
+    }
+
+    async Task OnExportExcel()
+    {
+        try
+        {
+            isLoading = true;
+            var fileBytes = await TmsService.ExportItemsToExcelAsync();
+            var fileName = $"ItemsExport_{DateTime.Now:yyyyMMddHHmmss}.xlsx";
+            await JS.InvokeVoidAsync("saveAsFile", fileName, Convert.ToBase64String(fileBytes));
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["ExcelExportedSuccessfully"] });
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = L["Error"], Detail = ex.Message });
+        }
+        finally
+        {
+            isLoading = false;
+        }
+    }
+
+    async Task OnImportExcel(InputFileChangeEventArgs e)
+    {
+        try
+        {
+            isLoading = true;
+            using var stream = e.File.OpenReadStream(maxAllowedSize: 10 * 1024 * 1024); // 10MB
+            using var ms = new MemoryStream();
+            await stream.CopyToAsync(ms);
+            ms.Position = 0;
+
+            var (success, failed, message) = await TmsService.ImportItemsFromExcelAsync(ms);
+            
+            if (failed == 0)
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["ImportComplete"], Detail = string.Format(L["ItemsImportedSuccessfully"], success) });
+            }
+            else
+            {
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Warning, Summary = L["ImportFinishedWithErrors"], Detail = string.Format(L["ImportResultDetails"], success, failed, message) });
+            }
+
+            await LoadData();
+        }
+        catch (Exception ex)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = L["Error"], Detail = ex.Message });
+        }
+        finally
+        {
+            isLoading = false;
         }
     }
 

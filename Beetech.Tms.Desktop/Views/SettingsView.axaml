@@ -1,0 +1,105 @@
+<UserControl xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:Beetech.Tms.Desktop.ViewModels;assembly=Beetech.Tms.Desktop"
+             xmlns:material="using:Material.Icons.Avalonia"
+             x:Class="Beetech.Tms.Desktop.Views.SettingsView"
+             x:DataType="vm:SettingsViewModel">
+
+    <Border Background="#F3F4F6">
+        <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+            <Border Background="White" CornerRadius="20" Padding="40" VerticalAlignment="Top" Margin="40"
+                    BoxShadow="0 4 20 0 #11000000">
+            <StackPanel Spacing="30">
+                <StackPanel Spacing="5">
+                    <TextBlock Text="{Binding L[SystemSettings]}" FontSize="28" FontWeight="Heavy" Foreground="{StaticResource TmsBlueBrush}"/>
+                    <TextBlock Text="{Binding L[ConfigureConnectivity]}" Foreground="#6B7280" FontSize="13"/>
+                </StackPanel>
+
+                <Separator/>
+
+                <Grid RowDefinitions="Auto,Auto,Auto,Auto,Auto" ColumnDefinitions="*,*">
+                    <!-- API URL -->
+                    <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Spacing="8" Margin="0,0,0,15">
+                        <TextBlock Text="{Binding L[ApiEndpointUrl]}" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding ApiUrl}" Watermark="http://localhost:5269/" Height="45" CornerRadius="12"/>
+                    </StackPanel>
+
+                    <!-- Reader Name -->
+                    <StackPanel Grid.Row="1" Grid.Column="0" Spacing="8" Margin="0,0,10,15">
+                        <TextBlock Text="{Binding L[ReaderName]}" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding ReaderName}" Watermark="Reader 01" Height="45" CornerRadius="12"/>
+                    </StackPanel>
+
+                    <!-- Reader IP -->
+                    <StackPanel Grid.Row="1" Grid.Column="1" Spacing="8" Margin="10,0,0,15">
+                        <TextBlock Text="{Binding L[ReaderIpAddress]}" FontWeight="SemiBold"/>
+                        <TextBox Text="{Binding ReaderIp}" Watermark="192.168.1.100" Height="45" CornerRadius="12"/>
+                    </StackPanel>
+
+                    <!-- Location Dropdown -->
+                    <StackPanel Grid.Row="2" Grid.Column="0" Spacing="8" Margin="0,0,10,15">
+                        <TextBlock Text="{Binding L[MonitoringLocation]}" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding Locations}" 
+                                  SelectedItem="{Binding SelectedLocationDto}" 
+                                  HorizontalAlignment="Stretch" Height="45" CornerRadius="12">
+                            <ComboBox.ItemTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}"/>
+                                </DataTemplate>
+                            </ComboBox.ItemTemplate>
+                        </ComboBox>
+                    </StackPanel>
+
+                    <!-- Test Mode -->
+                    <StackPanel Grid.Row="2" Grid.Column="1" VerticalAlignment="Center" Margin="10,0,0,15">
+                        <CheckBox IsChecked="{Binding IsTestMode}" Content="{Binding L[SimulationMode]}" FontWeight="SemiBold"/>
+                    </StackPanel>
+
+                    <!-- Reader Role -->
+                    <StackPanel Grid.Row="3" Grid.ColumnSpan="2" Spacing="8" Margin="0,5,0,0">
+                        <TextBlock Text="{Binding L[ReaderOperationalRole]}" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding ReaderRoles}"
+                                  SelectedIndex="{Binding SelectedRoleIndex}" 
+                                  HorizontalAlignment="Stretch" Height="45" CornerRadius="12"/>
+                        <TextBlock Text="{Binding L[RoleDescription]}" 
+                                   Foreground="#6B7280" FontSize="11" FontStyle="Italic"/>
+                    </StackPanel>
+
+                    <!-- Language -->
+                    <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Spacing="8" Margin="0,15,0,0">
+                        <TextBlock Text="{Binding L[Language]}" FontWeight="SemiBold"/>
+                        <ComboBox ItemsSource="{Binding Languages}"
+                                  SelectedIndex="{Binding SelectedLanguageIndex}" 
+                                  HorizontalAlignment="Stretch" Height="45" CornerRadius="12"/>
+                    </StackPanel>
+                </Grid>
+
+                <Separator/>
+
+                <StackPanel Spacing="12">
+                    <Button Command="{Binding CheckSettingsCommand}" 
+                            Height="50" CornerRadius="25"
+                            HorizontalAlignment="Stretch"
+                            Background="{StaticResource TmsAccentBrush}" Foreground="White">
+                        <StackPanel Orientation="Horizontal" Spacing="10" HorizontalAlignment="Center">
+                            <material:MaterialIcon Kind="Connection" Width="22" Height="22" IsVisible="{Binding !IsBusy}"/>
+                            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Width="22" Height="22" Foreground="White"/>
+                            <TextBlock Text="{Binding L[CheckAndSaveSettings]}" FontWeight="Bold" FontSize="16"/>
+                        </StackPanel>
+                    </Button>
+
+                    <Border Background="#F3F4F6" CornerRadius="8" Padding="15,10" BorderBrush="#D1D5DB" BorderThickness="1">
+                        <TextBlock Text="{Binding StatusMessage}" 
+                                   HorizontalAlignment="Center" FontWeight="Heavy"
+                                   Foreground="{Binding StatusMessage, Converter={StaticResource StatusToColorConverter}}"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+        </ScrollViewer>
+    </Border>
+
+    <UserControl.Resources>
+        <vm:StatusToColorConverter x:Key="StatusToColorConverter"/>
+    </UserControl.Resources>
+</UserControl>

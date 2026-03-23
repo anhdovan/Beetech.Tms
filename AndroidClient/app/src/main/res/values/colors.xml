@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="beetech_blue">#0059B2</color>
+    <color name="beetech_blue_dark">#004080</color>
+    <color name="beetech_blue_light">#3385D6</color>
+    <color name="beetech_accent">#FFA000</color>
+    <color name="white">#FFFFFF</color>
+    <color name="black">#000000</color>
+    <color name="gray_light">#F5F5F5</color>
+</resources>

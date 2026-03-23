@@ -1,0 +1,78 @@
+@page "/users"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@inject Microsoft.AspNetCore.Identity.UserManager<Beetech.Tms.Core.Models.AppUser> UserManager
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@using Microsoft.EntityFrameworkCore
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> L
+
+<PageTitle>@L["Users"]</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="@L["Users"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add" Text="@L["AddUser"]" ButtonStyle="ButtonStyle.Primary" Click="@AddUser" />
+</RadzenStack>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" AllowColumnResize="true" AllowPaging="true" PageSize="10" AllowSorting="true" Data="@users" TItem="Beetech.Tms.Core.Models.AppUser">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="UserName" Title="@L["Username"]" />
+        <RadzenDataGridColumn Property="FullName" Title="@L["FullName"]" />
+        <RadzenDataGridColumn Property="Department.Name" Title="@L["Department"]" />
+        <RadzenDataGridColumn Property="Customer.Name" Title="@L["Customer"]" />
+        <RadzenDataGridColumn Property="IsActive" Title="@L["Active"]" Width="100px" TextAlign="TextAlign.Center">
+            <Template Context="user">
+                <RadzenCheckBox @bind-Value="user.IsActive" Disabled="true" />
+            </Template>
+        </RadzenDataGridColumn>
+        <RadzenDataGridColumn Title="@L["Actions"]" Sortable="false" Filterable="false" Width="120px" TextAlign="TextAlign.Center">
+            <Template Context="user">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => EditUser(user))" @onclick:stopPropagation="true" />
+                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteUser(user))" @onclick:stopPropagation="true" class="rz-ml-1" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Beetech.Tms.Core.Models.AppUser> grid = null!;
+    List<Beetech.Tms.Core.Models.AppUser> users = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        users = await UserManager.Users.Include(u => u.Department).Include(u => u.Customer).ToListAsync();
+    }
+
+    async Task AddUser()
+    {
+        var result = await DialogService.OpenAsync<UserDialog>(L["AddUser"], new Dictionary<string, object> { { "User", new Beetech.Tms.Core.Models.AppUser() }, { "IsNew", true } });
+        if (result == true) await LoadData();
+    }
+
+    async Task EditUser(Beetech.Tms.Core.Models.AppUser user)
+    {
+        var result = await DialogService.OpenAsync<UserDialog>(L["EditUser"], new Dictionary<string, object> { { "UserId", user.Id }, { "IsNew", false } });
+        if (result == true) await LoadData();
+    }
+
+    async Task DeleteUser(Beetech.Tms.Core.Models.AppUser user)
+    {
+        var confirm = await DialogService.Confirm(L["ConfirmDeleteUser"], L["DeleteUserTitle"]);
+        if (confirm == true)
+        {
+            if (user.UserName == "admin@beetech.com")
+            {
+                NotificationService.Notify(NotificationSeverity.Error, L["Error"], "Cannot delete system admin.");
+                return;
+            }
+            await UserManager.DeleteAsync(user);
+            NotificationService.Notify(NotificationSeverity.Success, L["Success"], L["UserDeleted"]);
+            await LoadData();
+        }
+    }
+}

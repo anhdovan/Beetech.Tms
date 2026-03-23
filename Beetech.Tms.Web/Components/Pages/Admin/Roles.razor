@@ -1,0 +1,71 @@
+@page "/roles"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin")]
+@inject Microsoft.AspNetCore.Identity.RoleManager<Beetech.Tms.Core.Models.AppRole> RoleManager
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@using Microsoft.EntityFrameworkCore
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> L
+
+<PageTitle>@L["Roles"]</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="@L["Roles"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add" Text="@L["AddRole"]" ButtonStyle="ButtonStyle.Primary" Click="@AddRole" />
+</RadzenStack>
+
+<RadzenDataGrid @ref="grid" AllowFiltering="true" AllowColumnResize="true" AllowPaging="true" PageSize="10" AllowSorting="true" Data="@roles" TItem="Beetech.Tms.Core.Models.AppRole">
+    <Columns>
+        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
+        <RadzenDataGridColumn Property="Name" Title="@L["Name"]" />
+        <RadzenDataGridColumn Property="Description" Title="@L["Description"]" />
+        <RadzenDataGridColumn Title="@L["Actions"]" Sortable="false" Filterable="false" Width="100px" TextAlign="TextAlign.Center">
+            <Template Context="role">
+                <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Click="@(() => EditRole(role))" @onclick:stopPropagation="true" />
+                <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Size="ButtonSize.Small" Click="@(() => DeleteRole(role))" @onclick:stopPropagation="true" class="rz-ml-1" />
+            </Template>
+        </RadzenDataGridColumn>
+    </Columns>
+</RadzenDataGrid>
+
+@code {
+    RadzenDataGrid<Beetech.Tms.Core.Models.AppRole> grid = null!;
+    List<Beetech.Tms.Core.Models.AppRole> roles = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        roles = await RoleManager.Roles.ToListAsync();
+    }
+
+    async Task AddRole()
+    {
+        var result = await DialogService.OpenAsync<RoleDialog>(L["AddRole"], new Dictionary<string, object> { { "Role", new Beetech.Tms.Core.Models.AppRole() } });
+        if (result == true) await LoadData();
+    }
+
+    async Task EditRole(Beetech.Tms.Core.Models.AppRole role)
+    {
+        var result = await DialogService.OpenAsync<RoleDialog>(L["EditRole"], new Dictionary<string, object> { { "Role", role } });
+        if (result == true) await LoadData();
+    }
+
+    async Task DeleteRole(Beetech.Tms.Core.Models.AppRole role)
+    {
+        var confirm = await DialogService.Confirm(L["ConfirmDeleteRole"], L["DeleteRoleTitle"]);
+        if (confirm == true)
+        {
+            if (role.Name == "Admin")
+            {
+                NotificationService.Notify(NotificationSeverity.Error, L["Error"], "Cannot delete Admin role.");
+                return;
+            }
+            await RoleManager.DeleteAsync(role);
+            NotificationService.Notify(NotificationSeverity.Success, L["Success"], L["RoleDeleted"]);
+            await LoadData();
+        }
+    }
+}

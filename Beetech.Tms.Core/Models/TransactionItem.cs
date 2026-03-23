@@ -11,5 +11,10 @@ public class TransactionItem : BaseEntity
     public int TextileItemId { get; set; }
     public TextileItem? TextileItem { get; set; }
 
+    public int? PackingUnitId { get; set; }
+    public PackingUnit? PackingUnit { get; set; }
+
     public ItemStatus StatusAtTransaction { get; set; }
+
+    public string? Notes { get; set; }
 }

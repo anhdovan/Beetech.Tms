@@ -67,6 +67,9 @@ namespace Beetech.Tms.Core.Migrations
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
@@ -131,6 +134,8 @@ namespace Beetech.Tms.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("CustomerId");
 
                     b.HasIndex("DepartmentId");
 
@@ -217,6 +222,56 @@ namespace Beetech.Tms.Core.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("Beetech.Tms.Core.Models.Customer", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Address")
+                        .HasMaxLength(200)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Code")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContactPerson")
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("ContactPhone")
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsInternal")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Customers");
+                });
+
             modelBuilder.Entity("Beetech.Tms.Core.Models.Department", b =>
                 {
                     b.Property<int>("Id")
@@ -246,6 +301,97 @@ namespace Beetech.Tms.Core.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Departments");
+                });
+
+            modelBuilder.Entity("Beetech.Tms.Core.Models.InventoryAuditResult", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("AssetName")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int>("InventoryAuditSessionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<bool>("IsValid")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("ScanAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Tag")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("TextileItemId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("InventoryAuditSessionId");
+
+                    b.HasIndex("TextileItemId");
+
+                    b.ToTable("InventoryAuditResults");
+                });
+
+            modelBuilder.Entity("Beetech.Tms.Core.Models.InventoryAuditSession", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("EndTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("LocationId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("PerformByName")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("StartTime")
+                        .HasColumnType("TEXT");
+
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("LocationId");
+
+                    b.ToTable("InventoryAuditSessions");
                 });
 
             modelBuilder.Entity("Beetech.Tms.Core.Models.Location", b =>
@@ -286,6 +432,45 @@ namespace Beetech.Tms.Core.Migrations
                     b.ToTable("Locations");
                 });
 
+            modelBuilder.Entity("Beetech.Tms.Core.Models.PackingUnit", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("INTEGER");
+
+                    b.Property<string>("Code")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime?>("DeletedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TransactionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("Type")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("TEXT");
+
+                    b.Property<decimal?>("Weight")
+                        .HasColumnType("TEXT");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("TransactionId");
+
+                    b.ToTable("PackingUnits");
+                });
+
             modelBuilder.Entity("Beetech.Tms.Core.Models.TextileItem", b =>
                 {
                     b.Property<int>("Id")
@@ -297,6 +482,9 @@ namespace Beetech.Tms.Core.Migrations
 
                     b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("CurrentCustomerId")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("CurrentDepartmentId")
                         .HasColumnType("INTEGER");
@@ -326,6 +514,8 @@ namespace Beetech.Tms.Core.Migrations
 
                     b.HasIndex("CategoryId");
 
+                    b.HasIndex("CurrentCustomerId");
+
                     b.HasIndex("CurrentDepartmentId");
 
                     b.HasIndex("CurrentLocationId");
@@ -345,11 +535,17 @@ namespace Beetech.Tms.Core.Migrations
                     b.Property<int?>("CreatedById")
                         .HasColumnType("INTEGER");
 
+                    b.Property<int?>("CustomerId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<DateTime?>("DeletedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<int?>("DepartmentId")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("Description")
+                        .HasColumnType("TEXT");
 
                     b.Property<int?>("FromLocationId")
                         .HasColumnType("INTEGER");
@@ -359,6 +555,12 @@ namespace Beetech.Tms.Core.Migrations
 
                     b.Property<string>("Notes")
                         .HasColumnType("TEXT");
+
+                    b.Property<int?>("SourceTransactionId")
+                        .HasColumnType("INTEGER");
+
+                    b.Property<int>("TargetQuantity")
+                        .HasColumnType("INTEGER");
 
                     b.Property<int?>("ToLocationId")
                         .HasColumnType("INTEGER");
@@ -381,9 +583,13 @@ namespace Beetech.Tms.Core.Migrations
 
                     b.HasIndex("CreatedById");
 
+                    b.HasIndex("CustomerId");
+
                     b.HasIndex("DepartmentId");
 
                     b.HasIndex("FromLocationId");
+
+                    b.HasIndex("SourceTransactionId");
 
                     b.HasIndex("ToLocationId");
 
@@ -405,6 +611,12 @@ namespace Beetech.Tms.Core.Migrations
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("INTEGER");
 
+                    b.Property<string>("Notes")
+                        .HasColumnType("TEXT");
+
+                    b.Property<int?>("PackingUnitId")
+                        .HasColumnType("INTEGER");
+
                     b.Property<int>("StatusAtTransaction")
                         .HasColumnType("INTEGER");
 
@@ -418,6 +630,8 @@ namespace Beetech.Tms.Core.Migrations
                         .HasColumnType("TEXT");
 
                     b.HasKey("Id");
+
+                    b.HasIndex("PackingUnitId");
 
                     b.HasIndex("TextileItemId");
 
@@ -527,9 +741,15 @@ namespace Beetech.Tms.Core.Migrations
 
             modelBuilder.Entity("Beetech.Tms.Core.Models.AppUser", b =>
                 {
+                    b.HasOne("Beetech.Tms.Core.Models.Customer", "Customer")
+                        .WithMany()
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Beetech.Tms.Core.Models.Department", "Department")
                         .WithMany("Users")
                         .HasForeignKey("DepartmentId");
+
+                    b.Navigation("Customer");
 
                     b.Navigation("Department");
                 });
@@ -543,6 +763,45 @@ namespace Beetech.Tms.Core.Migrations
                     b.Navigation("User");
                 });
 
+            modelBuilder.Entity("Beetech.Tms.Core.Models.InventoryAuditResult", b =>
+                {
+                    b.HasOne("Beetech.Tms.Core.Models.InventoryAuditSession", "InventoryAuditSession")
+                        .WithMany("Results")
+                        .HasForeignKey("InventoryAuditSessionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("Beetech.Tms.Core.Models.TextileItem", "TextileItem")
+                        .WithMany()
+                        .HasForeignKey("TextileItemId");
+
+                    b.Navigation("InventoryAuditSession");
+
+                    b.Navigation("TextileItem");
+                });
+
+            modelBuilder.Entity("Beetech.Tms.Core.Models.InventoryAuditSession", b =>
+                {
+                    b.HasOne("Beetech.Tms.Core.Models.Location", "Location")
+                        .WithMany()
+                        .HasForeignKey("LocationId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Location");
+                });
+
+            modelBuilder.Entity("Beetech.Tms.Core.Models.PackingUnit", b =>
+                {
+                    b.HasOne("Beetech.Tms.Core.Models.Transaction", "Transaction")
+                        .WithMany("PackingUnits")
+                        .HasForeignKey("TransactionId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Transaction");
+                });
+
             modelBuilder.Entity("Beetech.Tms.Core.Models.TextileItem", b =>
                 {
                     b.HasOne("Beetech.Tms.Core.Models.Category", "Category")
@@ -550,6 +809,10 @@ namespace Beetech.Tms.Core.Migrations
                         .HasForeignKey("CategoryId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.HasOne("Beetech.Tms.Core.Models.Customer", "CurrentCustomer")
+                        .WithMany("Items")
+                        .HasForeignKey("CurrentCustomerId");
 
                     b.HasOne("Beetech.Tms.Core.Models.Department", "CurrentDepartment")
                         .WithMany()
@@ -560,6 +823,8 @@ namespace Beetech.Tms.Core.Migrations
                         .HasForeignKey("CurrentLocationId");
 
                     b.Navigation("Category");
+
+                    b.Navigation("CurrentCustomer");
 
                     b.Navigation("CurrentDepartment");
 
@@ -572,6 +837,10 @@ namespace Beetech.Tms.Core.Migrations
                         .WithMany()
                         .HasForeignKey("CreatedById");
 
+                    b.HasOne("Beetech.Tms.Core.Models.Customer", "Customer")
+                        .WithMany("Transactions")
+                        .HasForeignKey("CustomerId");
+
                     b.HasOne("Beetech.Tms.Core.Models.Department", "Department")
                         .WithMany()
                         .HasForeignKey("DepartmentId");
@@ -580,21 +849,33 @@ namespace Beetech.Tms.Core.Migrations
                         .WithMany()
                         .HasForeignKey("FromLocationId");
 
+                    b.HasOne("Beetech.Tms.Core.Models.Transaction", "SourceTransaction")
+                        .WithMany()
+                        .HasForeignKey("SourceTransactionId");
+
                     b.HasOne("Beetech.Tms.Core.Models.Location", "ToLocation")
                         .WithMany()
                         .HasForeignKey("ToLocationId");
 
                     b.Navigation("CreatedBy");
 
+                    b.Navigation("Customer");
+
                     b.Navigation("Department");
 
                     b.Navigation("FromLocation");
+
+                    b.Navigation("SourceTransaction");
 
                     b.Navigation("ToLocation");
                 });
 
             modelBuilder.Entity("Beetech.Tms.Core.Models.TransactionItem", b =>
                 {
+                    b.HasOne("Beetech.Tms.Core.Models.PackingUnit", "PackingUnit")
+                        .WithMany("Items")
+                        .HasForeignKey("PackingUnitId");
+
                     b.HasOne("Beetech.Tms.Core.Models.TextileItem", "TextileItem")
                         .WithMany()
                         .HasForeignKey("TextileItemId")
@@ -606,6 +887,8 @@ namespace Beetech.Tms.Core.Migrations
                         .HasForeignKey("TransactionId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+
+                    b.Navigation("PackingUnit");
 
                     b.Navigation("TextileItem");
 
@@ -668,9 +951,21 @@ namespace Beetech.Tms.Core.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("Beetech.Tms.Core.Models.Customer", b =>
+                {
+                    b.Navigation("Items");
+
+                    b.Navigation("Transactions");
+                });
+
             modelBuilder.Entity("Beetech.Tms.Core.Models.Department", b =>
                 {
                     b.Navigation("Users");
+                });
+
+            modelBuilder.Entity("Beetech.Tms.Core.Models.InventoryAuditSession", b =>
+                {
+                    b.Navigation("Results");
                 });
 
             modelBuilder.Entity("Beetech.Tms.Core.Models.Location", b =>
@@ -678,9 +973,16 @@ namespace Beetech.Tms.Core.Migrations
                     b.Navigation("Items");
                 });
 
+            modelBuilder.Entity("Beetech.Tms.Core.Models.PackingUnit", b =>
+                {
+                    b.Navigation("Items");
+                });
+
             modelBuilder.Entity("Beetech.Tms.Core.Models.Transaction", b =>
                 {
                     b.Navigation("Items");
+
+                    b.Navigation("PackingUnits");
                 });
 #pragma warning restore 612, 618
         }

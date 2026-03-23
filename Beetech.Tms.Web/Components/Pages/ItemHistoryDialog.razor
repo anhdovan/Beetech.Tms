@@ -1,0 +1,69 @@
+@using Beetech.Tms.Core.Models
+@inject TmsService TmsService
+@inject IStringLocalizer<App> L
+
+<RadzenStack Gap="1.5rem">
+    <RadzenText TextStyle="TextStyle.Subtitle1" Text="@string.Format(L["TransactionHistoryFor"], Item.Code)" />
+    
+    @if (transactions == null)
+    {
+        <RadzenProgressBar Value="100" ShowValue="false" Mode="ProgressBarMode.Indeterminate" />
+    }
+    else if (!transactions.Any())
+    {
+        <RadzenAlert Title="@L["NoHistory"]" AllowClose="false" AlertStyle="AlertStyle.Info">
+            @L["NoRecordedTransactions"]
+        </RadzenAlert>
+    }
+    else
+    {
+        <RadzenDataGrid Data="@transactions" TItem="Transaction" AllowPaging="true" PageSize="5">
+            <Columns>
+                <RadzenDataGridColumn Property="TransactionDate" Title="@L["Date"]" Width="160px">
+                    <Template Context="t">
+                        @t.TransactionDate.ToLocalTime().ToString("g")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="Type" Title="@L["Type"]" Width="140px">
+                    <Template Context="t">
+                        <RadzenBadge BadgeStyle="@GetTransactionBadgeStyle(t.Type)" Text="@t.Type.ToString()" />
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="FromLocation.Name" Title="@L["From"]" />
+                <RadzenDataGridColumn Property="ToLocation.Name" Title="@L["ToDept"]">
+                    <Template Context="t">
+                        @(t.Department?.Name ?? t.ToLocation?.Name ?? "-")
+                    </Template>
+                </RadzenDataGridColumn>
+                <RadzenDataGridColumn Property="CreatedBy.FullName" Title="@L["User"]" Width="150px" />
+            </Columns>
+        </RadzenDataGrid>
+    }
+
+    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End">
+        <RadzenButton Text="@L["Close"]" Click="@(() => DialogService.Close())" ButtonStyle="ButtonStyle.Secondary" />
+    </RadzenStack>
+</RadzenStack>
+
+@code {
+    [Parameter] public TextileItem Item { get; set; } = null!;
+    [Inject] public DialogService DialogService { get; set; } = null!;
+
+    private List<Transaction>? transactions;
+
+    protected override async Task OnInitializedAsync()
+    {
+        transactions = await TmsService.GetItemTransactionsAsync(Item.Id);
+    }
+
+    private BadgeStyle GetTransactionBadgeStyle(TransactionType type) => type switch
+    {
+        TransactionType.LaundrySend => BadgeStyle.Warning,
+        TransactionType.LaundryReceive => BadgeStyle.Success,
+        TransactionType.Delivery => BadgeStyle.Info,
+        TransactionType.Receipt => BadgeStyle.Primary,
+        TransactionType.InternalTransfer => BadgeStyle.Secondary,
+        TransactionType.Discard => BadgeStyle.Danger,
+        _ => BadgeStyle.Light
+    };
+}

@@ -1,0 +1,538 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="Dashboard" xml:space="preserve">
+    <value>Bảng điều khiển</value>
+  </data>
+  <data name="LaundryProcessing" xml:space="preserve">
+    <value>Xử lý giặt là</value>
+  </data>
+  <data name="TextileItems" xml:space="preserve">
+    <value>Đồ vải</value>
+  </data>
+  <data name="Categories" xml:space="preserve">
+    <value>Danh mục</value>
+  </data>
+  <data name="Locations" xml:space="preserve">
+    <value>Vị trí</value>
+  </data>
+  <data name="Departments" xml:space="preserve">
+    <value>Phòng ban</value>
+  </data>
+  <data name="Transactions" xml:space="preserve">
+    <value>Giao dịch</value>
+  </data>
+  <data name="Customers" xml:space="preserve">
+    <value>Khách hàng</value>
+  </data>
+  <data name="Logout" xml:space="preserve">
+    <value>Đăng xuất</value>
+  </data>
+  <data name="Login" xml:space="preserve">
+    <value>Đăng nhập</value>
+  </data>
+  <data name="Available" xml:space="preserve">
+    <value>Có sẵn</value>
+  </data>
+  <data name="ExcelExportedSuccessfully" xml:space="preserve">
+    <value>Xuất Excel thành công</value>
+  </data>
+  <data name="RequestID" xml:space="preserve">
+    <value>Mã yêu cầu</value>
+  </data>
+  <data name="SearchCodeOrCategory" xml:space="preserve">
+    <value>Tìm kiếm theo mã hoặc danh mục...</value>
+  </data>
+  <data name="ItemCode" xml:space="preserve">
+    <value>Mã mặt hàng</value>
+  </data>
+  <data name="Description" xml:space="preserve">
+    <value>Mô tả</value>
+  </data>
+  <data name="ConfirmDeleteCustomer" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa khách hàng '{0}' không?</value>
+  </data>
+  <data name="AddDepartment" xml:space="preserve">
+    <value>Thêm phòng ban</value>
+  </data>
+  <data name="Info" xml:space="preserve">
+    <value>Thông tin</value>
+  </data>
+  <data name="ItemDeleted" xml:space="preserve">
+    <value>Đã xóa mặt hàng thành công</value>
+  </data>
+  <data name="ProcessingDetails" xml:space="preserve">
+    <value>Chi tiết xử lý</value>
+  </data>
+  <data name="ItemsMissing" xml:space="preserve">
+    <value>Thiếu {0} mặt hàng</value>
+  </data>
+  <data name="EditItem" xml:space="preserve">
+    <value>Sửa mặt hàng</value>
+  </data>
+  <data name="EditDepartment" xml:space="preserve">
+    <value>Sửa phòng ban</value>
+  </data>
+  <data name="Location" xml:space="preserve">
+    <value>Vị trí</value>
+  </data>
+  <data name="DepartmentDetails" xml:space="preserve">
+    <value>Chi tiết phòng ban</value>
+  </data>
+  <data name="Notes" xml:space="preserve">
+    <value>Ghi chú</value>
+  </data>
+  <data name="Success" xml:space="preserve">
+    <value>Thành công</value>
+  </data>
+  <data name="ConfirmDeleteLocation" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa vị trí '{0}' không?</value>
+  </data>
+  <data name="CurrentStage" xml:space="preserve">
+    <value>Giai đoạn hiện tại</value>
+  </data>
+  <data name="AddCustomer" xml:space="preserve">
+    <value>Thêm khách hàng</value>
+  </data>
+  <data name="DeleteItem" xml:space="preserve">
+    <value>Xóa mặt hàng</value>
+  </data>
+  <data name="NotFoundMessage" xml:space="preserve">
+    <value>Xin lỗi, không tìm thấy nội dung bạn yêu cầu.</value>
+  </data>
+  <data name="ComingSoonTransactionChart" xml:space="preserve">
+    <value>Biểu đồ giao dịch sẽ sớm ra mắt</value>
+  </data>
+  <data name="WashCount" xml:space="preserve">
+    <value>Số lần giặt</value>
+  </data>
+  <data name="DeleteLocation" xml:space="preserve">
+    <value>Xóa vị trí</value>
+  </data>
+  <data name="TransactionHistoryFor" xml:space="preserve">
+    <value>Lịch sử của {0}</value>
+  </data>
+  <data name="FailedSaveCategory" xml:space="preserve">
+    <value>Lưu danh mục thất bại</value>
+  </data>
+  <data name="InUse" xml:space="preserve">
+    <value>Đang sử dụng</value>
+  </data>
+  <data name="CreatedBy" xml:space="preserve">
+    <value>Tạo bởi</value>
+  </data>
+  <data name="ConfirmDeleteDepartment" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa phòng ban '{0}' không?</value>
+  </data>
+  <data name="LaundrySend" xml:space="preserve">
+    <value>Gửi đi nhà giặt</value>
+  </data>
+  <data name="Email" xml:space="preserve">
+    <value>Email</value>
+  </data>
+  <data name="User" xml:space="preserve">
+    <value>Người dùng</value>
+  </data>
+  <data name="Yes" xml:space="preserve">
+    <value>Có</value>
+  </data>
+  <data name="ConfirmDeleteItem" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa mặt hàng '{0}' không?</value>
+  </data>
+  <data name="NewDelivery" xml:space="preserve">
+    <value>Giao hàng mới</value>
+  </data>
+  <data name="LaundryReceive" xml:space="preserve">
+    <value>Nhận từ nhà giặt</value>
+  </data>
+  <data name="LocationDetails" xml:space="preserve">
+    <value>Chi tiết vị trí</value>
+  </data>
+  <data name="LoginHint" xml:space="preserve">
+    <value>Gợi ý: admin@beetech.com / User@123</value>
+  </data>
+  <data name="DepartmentSaved" xml:space="preserve">
+    <value>Đã lưu phòng ban thành công</value>
+  </data>
+  <data name="ScanBarcodeRFID" xml:space="preserve">
+    <value>Quét Mã Vạch / RFID</value>
+  </data>
+  <data name="EditCategory" xml:space="preserve">
+    <value>Sửa danh mục</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Xác nhận xóa</value>
+  </data>
+  <data name="Folding" xml:space="preserve">
+    <value>Gấp</value>
+  </data>
+  <data name="Ironing" xml:space="preserve">
+    <value>Ủi</value>
+  </data>
+  <data name="RegisterItem" xml:space="preserve">
+    <value>Đăng ký mặt hàng</value>
+  </data>
+  <data name="Active" xml:space="preserve">
+    <value>Hoạt động</value>
+  </data>
+  <data name="Name" xml:space="preserve">
+    <value>Tên</value>
+  </data>
+  <data name="Department" xml:space="preserve">
+    <value>Phòng ban</value>
+  </data>
+  <data name="Date" xml:space="preserve">
+    <value>Ngày</value>
+  </data>
+  <data name="FromLocation" xml:space="preserve">
+    <value>Từ vị trí</value>
+  </data>
+  <data name="ConfirmDeleteCategory" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa danh mục '{0}' không?</value>
+  </data>
+  <data name="FailedSaveLocation" xml:space="preserve">
+    <value>Lưu vị trí thất bại</value>
+  </data>
+  <data name="Washing" xml:space="preserve">
+    <value>Đang giặt</value>
+  </data>
+  <data name="Close" xml:space="preserve">
+    <value>Đóng</value>
+  </data>
+  <data name="Items" xml:space="preserve">
+    <value>Mặt hàng</value>
+  </data>
+  <data name="FailedSaveCustomer" xml:space="preserve">
+    <value>Lưu khách hàng thất bại</value>
+  </data>
+  <data name="PleaseScanAtLeastOneItem" xml:space="preserve">
+    <value>Vui lòng quét ít nhất một mặt hàng</value>
+  </data>
+  <data name="Drying" xml:space="preserve">
+    <value>Sấy khô</value>
+  </data>
+  <data name="TotalItems" xml:space="preserve">
+    <value>Tổng số mặt hàng</value>
+  </data>
+  <data name="Status" xml:space="preserve">
+    <value>Trạng thái</value>
+  </data>
+  <data name="TransactionDetails" xml:space="preserve">
+    <value>Chi tiết giao dịch</value>
+  </data>
+  <data name="TransactionHistory" xml:space="preserve">
+    <value>Lịch sử giao dịch</value>
+  </data>
+  <data name="Refresh" xml:space="preserve">
+    <value>Làm mới</value>
+  </data>
+  <data name="Warning" xml:space="preserve">
+    <value>Cảnh báo</value>
+  </data>
+  <data name="NoHistory" xml:space="preserve">
+    <value>Không có lịch sử</value>
+  </data>
+  <data name="RecentActivities" xml:space="preserve">
+    <value>Hoạt động gần đây</value>
+  </data>
+  <data name="TraceHistory" xml:space="preserve">
+    <value>Theo dõi lịch sử</value>
+  </data>
+  <data name="Condemned" xml:space="preserve">
+    <value>Đã hủy</value>
+  </data>
+  <data name="ExportExcel" xml:space="preserve">
+    <value>Xuất Excel</value>
+  </data>
+  <data name="Cancel" xml:space="preserve">
+    <value>Hủy</value>
+  </data>
+  <data name="From" xml:space="preserve">
+    <value>Từ</value>
+  </data>
+  <data name="TransactionItems" xml:space="preserve">
+    <value>Mặt hàng giao dịch</value>
+  </data>
+  <data name="BasicInfo" xml:space="preserve">
+    <value>Thông tin cơ bản</value>
+  </data>
+  <data name="SelectDepartment" xml:space="preserve">
+    <value>Chọn phòng ban</value>
+  </data>
+  <data name="Actions" xml:space="preserve">
+    <value>Hành động</value>
+  </data>
+  <data name="NewTransaction" xml:space="preserve">
+    <value>Giao dịch mới</value>
+  </data>
+  <data name="ContactPerson" xml:space="preserve">
+    <value>Người liên hệ</value>
+  </data>
+  <data name="CategorySaved" xml:space="preserve">
+    <value>Đã lưu danh mục thành công</value>
+  </data>
+  <data name="CategoryDetails" xml:space="preserve">
+    <value>Chi tiết danh mục</value>
+  </data>
+  <data name="SelectLocation" xml:space="preserve">
+    <value>Chọn vị trí</value>
+  </data>
+  <data name="LastActivity" xml:space="preserve">
+    <value>Hoạt động cuối</value>
+  </data>
+  <data name="ItemAlreadyInList" xml:space="preserve">
+    <value>Mặt hàng này đã có trong danh sách</value>
+  </data>
+  <data name="InternalTransfer" xml:space="preserve">
+    <value>Chuyển nội bộ</value>
+  </data>
+  <data name="NameRequired" xml:space="preserve">
+    <value>Bắt buộc nhập tên</value>
+  </data>
+  <data name="AddLocation" xml:space="preserve">
+    <value>Thêm vị trí</value>
+  </data>
+  <data name="NewReceipt" xml:space="preserve">
+    <value>Phiếu thu mới</value>
+  </data>
+  <data name="Code" xml:space="preserve">
+    <value>Mã</value>
+  </data>
+  <data name="Number" xml:space="preserve">
+    <value>Số</value>
+  </data>
+  <data name="TransactionSaved" xml:space="preserve">
+    <value>Giao dịch đã được lưu</value>
+  </data>
+  <data name="ErrorOccurred" xml:space="preserve">
+    <value>Đã xảy ra lỗi trong quá trình xử lý yêu cầu của bạn.</value>
+  </data>
+  <data name="No" xml:space="preserve">
+    <value>Không</value>
+  </data>
+  <data name="CustomerDeleted" xml:space="preserve">
+    <value>Đã xóa khách hàng thành công</value>
+  </data>
+  <data name="ScanItems" xml:space="preserve">
+    <value>Quét vật phẩm</value>
+  </data>
+  <data name="DeleteTransactionTitle" xml:space="preserve">
+    <value>Xóa giao dịch</value>
+  </data>
+  <data name="To" xml:space="preserve">
+    <value>Đến</value>
+  </data>
+  <data name="ItemsImportedSuccessfully" xml:space="preserve">
+    <value>Nhập mặt hàng thành công</value>
+  </data>
+  <data name="FailedSaveDepartment" xml:space="preserve">
+    <value>Lưu phòng ban thất bại</value>
+  </data>
+  <data name="NoItemsExpected" xml:space="preserve">
+    <value>Không dự kiến có mặt hàng nào</value>
+  </data>
+  <data name="FailedSaveItem" xml:space="preserve">
+    <value>Lưu mặt hàng thất bại</value>
+  </data>
+  <data name="ItemsByCategory" xml:space="preserve">
+    <value>Mặt hàng theo danh mục</value>
+  </data>
+  <data name="ImportExcel" xml:space="preserve">
+    <value>Nhập Excel</value>
+  </data>
+  <data name="CategoryDeleted" xml:space="preserve">
+    <value>Đã xóa danh mục thành công</value>
+  </data>
+  <data name="Type" xml:space="preserve">
+    <value>Loại</value>
+  </data>
+  <data name="CategoryRequired" xml:space="preserve">
+    <value>Danh mục là bắt buộc</value>
+  </data>
+  <data name="LocationSaved" xml:space="preserve">
+    <value>Đã lưu vị trí thành công</value>
+  </data>
+  <data name="ViewDetails" xml:space="preserve">
+    <value>Xem chi tiết</value>
+  </data>
+  <data name="ItemsDiscard" xml:space="preserve">
+    <value>Hủy vật phẩm</value>
+  </data>
+  <data name="CustomerDetails" xml:space="preserve">
+    <value>Chi tiết khách hàng</value>
+  </data>
+  <data name="LocationsMustBeDifferent" xml:space="preserve">
+    <value>Vị trí nguồn và đích phải khác nhau</value>
+  </data>
+  <data name="Internal" xml:space="preserve">
+    <value>Nội bộ</value>
+  </data>
+  <data name="ExtraItemsDetected" xml:space="preserve">
+    <value>Phát hiện mặt hàng không mong muốn</value>
+  </data>
+  <data name="EditLocation" xml:space="preserve">
+    <value>Sửa vị trí</value>
+  </data>
+  <data name="DepartmentDeleted" xml:space="preserve">
+    <value>Đã xóa phòng ban thành công</value>
+  </data>
+  <data name="ImportFinishedWithErrors" xml:space="preserve">
+    <value>Nhập hoàn tất với một số lỗi</value>
+  </data>
+  <data name="ToDept" xml:space="preserve">
+    <value>Đến phòng ban</value>
+  </data>
+  <data name="ID" xml:space="preserve">
+    <value>ID</value>
+  </data>
+  <data name="CustomerSaved" xml:space="preserve">
+    <value>Đã lưu khách hàng thành công</value>
+  </data>
+  <data name="ToLocation" xml:space="preserve">
+    <value>Đến vị trí</value>
+  </data>
+  <data name="CurrentItems" xml:space="preserve">
+    <value>Mặt hàng hiện tại</value>
+  </data>
+  <data name="Phone" xml:space="preserve">
+    <value>Điện thoại</value>
+  </data>
+  <data name="LocationDeleted" xml:space="preserve">
+    <value>Đã xóa vị trí thành công</value>
+  </data>
+  <data name="Category" xml:space="preserve">
+    <value>Danh mục</value>
+  </data>
+  <data name="TransactionDate" xml:space="preserve">
+    <value>Ngày giao dịch</value>
+  </data>
+  <data name="ConfirmDeleteTransaction" xml:space="preserve">
+    <value>Bạn có chắc chắn muốn xóa giao dịch này không?</value>
+  </data>
+  <data name="DeleteDepartment" xml:space="preserve">
+    <value>Xóa phòng ban</value>
+  </data>
+  <data name="DeleteCategory" xml:space="preserve">
+    <value>Xóa danh mục</value>
+  </data>
+  <data name="ImportComplete" xml:space="preserve">
+    <value>Nhập hoàn tất</value>
+  </data>
+  <data name="Password" xml:space="preserve">
+    <value>Mật khẩu</value>
+  </data>
+  <data name="NoRecordedTransactions" xml:space="preserve">
+    <value>Chưa có giao dịch</value>
+  </data>
+  <data name="TransactionDeleted" xml:space="preserve">
+    <value>Đã xóa giao dịch thành công</value>
+  </data>
+  <data name="Add" xml:space="preserve">
+    <value>Thêm</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Lưu</value>
+  </data>
+  <data name="ItemRegisteredSuccessfully" xml:space="preserve">
+    <value>Đăng ký mặt hàng thành công</value>
+  </data>
+  <data name="ItemDetails" xml:space="preserve">
+    <value>Chi tiết mặt hàng</value>
+  </data>
+  <data name="Contact" xml:space="preserve">
+    <value>Liên hệ</value>
+  </data>
+  <data name="TotalItemsCount" xml:space="preserve">
+    <value>Tổng số: {0}</value>
+  </data>
+  <data name="LaundryProcessingFlow" xml:space="preserve">
+    <value>Quy trình xử lý giặt là</value>
+  </data>
+  <data name="Soiled" xml:space="preserve">
+    <value>Đồ bẩn</value>
+  </data>
+  <data name="Error" xml:space="preserve">
+    <value>Lỗi</value>
+  </data>
+  <data name="External" xml:space="preserve">
+    <value>Bên ngoài</value>
+  </data>
+  <data name="RFIDTrace" xml:space="preserve">
+    <value>Lịch sử RFID</value>
+  </data>
+  <data name="ImportResultDetails" xml:space="preserve">
+    <value>Chi tiết kết quả nhập</value>
+  </data>
+  <data name="AddCategory" xml:space="preserve">
+    <value>Thêm danh mục</value>
+  </data>
+  <data name="EditCustomer" xml:space="preserve">
+    <value>Sửa khách hàng</value>
+  </data>
+  <data name="Address" xml:space="preserve">
+    <value>Địa chỉ</value>
+  </data>
+  <data name="RFIDTagNotFound" xml:space="preserve">
+    <value>Không tìm thấy thẻ RFID {0}</value>
+  </data>
+  <data name="NotFoundTitle" xml:space="preserve">
+    <value>Không Tìm Thấy</value>
+  </data>
+</root>

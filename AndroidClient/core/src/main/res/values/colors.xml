@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="red">#7C120D</color>
+    <color name="orange">#FFA500</color>
+    <color name="yellow">#FF0000</color>
+    <color name="khaki">#F0E68C</color>
+    <color name="green">#008000</color>
+    <color name="aquamarine">#7FFFD4</color>
+    <color name="cyan">#00FFFF</color>
+    <color name="blue">#0000FF</color>
+    <color name="magenta">#FF00FF</color>
+    <color name="white">#FFFFFF</color>
+    <color name="gainsboro">#DCDCDC</color>
+    <color name="lightgrey">#D3D3D3</color>
+    <color name="grey">#808080</color>
+    <color name="black">#000000</color>
+
+    <color name="teal_200">#FF03DAC5</color>
+
+    <drawable name="red">@color/red</drawable>
+    <drawable name="orange">@color/orange</drawable>
+    <drawable name="yellow">@color/yellow</drawable>
+    <drawable name="khaki">@color/khaki</drawable>
+    <drawable name="green">@color/green</drawable>
+    <drawable name="aquamarine">@color/aquamarine</drawable>
+    <drawable name="cyan">@color/cyan</drawable>
+    <drawable name="blue">@color/blue</drawable>
+    <drawable name="magenta">@color/magenta</drawable>
+    <drawable name="white">@color/white</drawable>
+    <drawable name="gainsboro">@color/gainsboro</drawable>
+    <drawable name="lightgrey">@color/lightgrey</drawable>
+    <drawable name="grey">@color/grey</drawable>
+    <drawable name="black">@color/black</drawable>
+
+    <color name="caption_color">#2d9bd5</color>
+    <color name="value_color">#1a58af</color>
+    <color name="label_color">#598aa1</color>
+
+    <color name="frame_background_color">#eaeaea</color>
+    <color name="frame_line_color">#d2d2d2</color>
+
+    <color name="option_group_background_color">#1f4e78</color>
+
+    <color name="device_name_color">#205867</color>
+    <color name="device_address_color">#31859b</color>
+
+    <color name="bluetooth_background_color">#0d297c</color>
+
+</resources>

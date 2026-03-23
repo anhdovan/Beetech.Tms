@@ -1,0 +1,53 @@
+plugins {
+    id 'com.android.library'
+}
+
+android {
+    namespace 'beetech.app.readers'
+    compileSdk 34
+
+    defaultConfig {
+        minSdk 26
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles "consumer-rules.pro"
+    }
+
+    sourceSets {
+        main {
+            jniLibs.srcDirs = ['libs/jniLibs']
+        }
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
+    }
+}
+
+dependencies {
+
+    implementation 'androidx.appcompat:appcompat:1.6.1'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation project(':core')
+    testImplementation 'junit:junit:4.13.2'
+    androidTestImplementation 'androidx.test.ext:junit:1.2.1'
+    androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
+
+    implementation fileTree(dir: 'libs\\aar', include: ['URFIDLibrary-v2.4.0125.aar'], exclude: [])
+    implementation fileTree(dir: 'libs\\jar', include: [
+            //'unitech.jar', '*.jar'
+            //,            'unitech.lib.reader_v1.0.0.6.jar'
+    ], exclude: ['URFIDLibrary-v2.4.0125.jar'])//
+    //implementation unitechLib
+
+    //implementation files('libs\\jar\\platform_sdk_v4.1.0326.jar')
+    implementation 'org.slf4j:slf4j-jdk14:1.7.25'
+
+}

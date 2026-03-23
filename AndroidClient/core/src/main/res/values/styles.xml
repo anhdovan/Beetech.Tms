@@ -1,0 +1,144 @@
+<resources>
+
+    <!--
+        Base application theme, dependent on API level. This theme is replaced
+        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
+    -->
+    <style name="AppBaseTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+    </style>
+
+    <!-- Application theme. -->
+    <style name="AppTheme" parent="AppBaseTheme">
+        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
+    </style>
+
+    <style name="frame_round">
+        <item name="android:background">@drawable/frame_round_rectangle</item>
+        <item name="android:padding">5dp</item>
+    </style>
+    
+    <style name="vertical_view">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
+    <style name="horizontal_view">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
+    <style name="wrap_view">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+    </style>
+    
+    <style name="line_layout" parent="horizontal_layout">
+        <item name="android:gravity">center_vertical</item>
+    </style>
+    
+    <style name="vertical_layout" parent="vertical_view">
+        <item name="android:orientation">vertical</item>
+    </style>
+    
+    <style name="horizontal_layout" parent="horizontal_view">
+        <item name="android:orientation">horizontal</item>
+    </style>
+    
+    
+    <!-- Split -->
+    <style name="horizontal_split">
+        <item name="android:layout_height">0dp</item>
+    </style>
+    
+    <style name="horizontal_split_3dp" parent="horizontal_split">
+        <item name="android:layout_width">3dp</item>
+    </style>
+    
+    <style name="horizontal_split_5dp" parent="horizontal_split">
+        <item name="android:layout_width">5dp</item>
+    </style>
+    
+    <style name="horizontal_split_7dp" parent="horizontal_split">
+        <item name="android:layout_width">7dp</item>
+    </style>
+    
+    <style name="vertical_split">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    
+    <style name="vertical_split_3dp" parent="vertical_split">
+        <item name="android:layout_height">3dp</item>
+    </style>
+    
+    <style name="vertical_split_5dp" parent="vertical_split">
+        <item name="android:layout_height">5dp</item>
+    </style>
+    
+    <style name="vertical_split_7dp" parent="vertical_split">
+        <item name="android:layout_height">7dp</item>
+    </style>
+    
+    <style name="vertical_split_10dp" parent="vertical_split">
+        <item name="android:layout_height">10dp</item>
+    </style>    
+    
+    <!-- Text View -->
+    <style name ="caption_textview">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_gravity">center_vertical</item>
+        <item name="android:textColor">@color/caption_color</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <style name="value_textview">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <style name="vertical_caption_textview" parent="caption_textview">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    
+    <style name="option_caption_textview" parent="caption_textview">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_weight">1</item>
+    </style>
+    
+    <style name="base_value_textview" parent="android:Widget.Holo.Light.Spinner">
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:padding">5dp</item>
+        <item name="android:textSize">16sp</item>
+    </style>
+    
+    <style name="option_value_textview" parent="base_value_textview">
+        <item name="android:layout_width">0dp</item>
+    </style>
+    
+    <style name="option_value_vertical_textview" parent="base_value_textview">
+        <item name="android:layout_width">match_parent</item>
+    </style>
+    
+    <style name="value_switch" parent="wrap_view">
+        <item name="android:enabled">false</item>
+        <item name="android:textOn">@string/action_on</item>
+        <item name="android:textOff">@string/action_off</item>
+    </style>
+
+    <style name="memory_value">
+        <item name="android:layout_width">0dp</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:layout_weight">1</item>
+        <item name="android:gravity">center_horizontal|center_vertical</item>
+        <item name="android:textColor">@color/value_color</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
+    </style>
+    
+</resources>

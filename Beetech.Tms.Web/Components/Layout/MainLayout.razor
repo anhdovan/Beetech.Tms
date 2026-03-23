@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @using Microsoft.AspNetCore.Components.Authorization
+@inject IStringLocalizer<App> L
 
 <RadzenLayout class="@(sidebarExpanded ? "sidebar-expanded" : "sidebar-collapsed")">
     <RadzenHeader Style="background-color: #1b6ec2;">
@@ -10,17 +11,32 @@
                 <RadzenText Text="Beetech TMS 1.0" TextStyle="TextStyle.H6" class="rz-m-0" style="font-weight: 700; color: white !important;" />
             </RadzenStack>
             <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="1rem">
+                <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                    <RadzenButton Click="@(() => ChangeCulture("en-US"))" Variant="Variant.Text" Size="ButtonSize.Small" Style="padding: 0 4px;">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.3rem">
+                            <RadzenImage Path="https://flagcdn.com/w20/gb.png" Style="width: 20px; border-radius: 2px;" />
+                            <RadzenText Text="EN" Style="color: white; font-weight: bold; margin-bottom: 0;" />
+                        </RadzenStack>
+                    </RadzenButton>
+                    <RadzenText Text="|" Style="color: white; opacity: 0.5;" />
+                    <RadzenButton Click="@(() => ChangeCulture("vi-VN"))" Variant="Variant.Text" Size="ButtonSize.Small" Style="padding: 0 4px;">
+                        <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.3rem">
+                            <RadzenImage Path="https://flagcdn.com/w20/vn.png" Style="width: 20px; border-radius: 2px;" />
+                            <RadzenText Text="VI" Style="color: white; font-weight: bold; margin-bottom: 0;" />
+                        </RadzenStack>
+                    </RadzenButton>
+                </RadzenStack>
                 <AuthorizeView>
                     <Authorized>
                         <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
                             <RadzenBadge BadgeStyle="BadgeStyle.Light" Text="@context.User.Identity?.Name" />
-                            <RadzenButton Icon="logout" Text="Logout" 
+                            <RadzenButton Icon="logout" Text="@L["Logout"]" 
                                           Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" 
                                           Click="@Logout" Style="color: white !important;" />
                         </RadzenStack>
                     </Authorized>
                     <NotAuthorized>
-                        <RadzenButton Icon="login" Text="Login" Click="@(() => NavigationManager.NavigateTo("login"))" 
+                        <RadzenButton Icon="login" Text="@L["Login"]" Click="@(() => NavigationManager.NavigateTo("login"))" 
                                       Variant="Variant.Text" ButtonStyle="ButtonStyle.Light" Size="ButtonSize.Small" Style="color: white !important;" />
                     </NotAuthorized>
                 </AuthorizeView>
@@ -30,13 +46,21 @@
 
     <RadzenSidebar @bind-Expanded="@sidebarExpanded">
         <RadzenPanelMenu>
-            <RadzenPanelMenuItem Text="Dashboard" Icon="dashboard" Path="" Match="NavLinkMatch.All" />
+            <RadzenPanelMenuItem Text="@L["Dashboard"]" Icon="dashboard" Path="" Match="NavLinkMatch.All" />
+            <RadzenPanelMenuItem Text="@L["LaundryProcessing"]" Icon="track_changes" Path="laundry-processing" />
             <AuthorizeView Roles="Admin,Manager,Operator">
-                <RadzenPanelMenuItem Text="Textile Items" Icon="tag" Path="items" />
-                <RadzenPanelMenuItem Text="Categories" Icon="category" Path="categories" />
-                <RadzenPanelMenuItem Text="Locations" Icon="place" Path="locations" />
-                <RadzenPanelMenuItem Text="Departments" Icon="people" Path="departments" />
-                <RadzenPanelMenuItem Text="Transactions" Icon="swap_horiz" Path="transactions" />
+                <RadzenPanelMenuItem Text="@L["TextileItems"]" Icon="tag" Path="items" />
+                <RadzenPanelMenuItem Text="@L["Categories"]" Icon="category" Path="categories" />
+                <RadzenPanelMenuItem Text="@L["Locations"]" Icon="place" Path="locations" />
+                <RadzenPanelMenuItem Text="@L["Departments"]" Icon="people" Path="departments" />
+                <RadzenPanelMenuItem Text="@L["Customers"]" Icon="people" Path="customers" />
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin,Manager,Operator,Customer">
+                <RadzenPanelMenuItem Text="@L["Transactions"]" Icon="swap_horiz" Path="transactions" />
+            </AuthorizeView>
+            <AuthorizeView Roles="Admin">
+                <RadzenPanelMenuItem Text="@L["Users"]" Icon="person" Path="users" />
+                <RadzenPanelMenuItem Text="@L["Roles"]" Icon="security" Path="roles" />
             </AuthorizeView>
         </RadzenPanelMenu>
     </RadzenSidebar>
@@ -63,5 +87,12 @@
     void Logout()
     {
         NavigationManager.NavigateTo("api/account/logout", true);
+    }
+
+    void ChangeCulture(string culture)
+    {
+        var uri = new Uri(NavigationManager.Uri).PathAndQuery;
+        var query = $"?culture={culture}&redirectUri={Uri.EscapeDataString(uri)}";
+        NavigationManager.NavigateTo("/Culture/SetCulture" + query, forceLoad: true);
     }
 }

@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string-array name="file_status_array">
+        <item>Tất cả trạng thái</item>
+        <item>Active</item>
+        <item>Lost</item>
+        <item>Discarded</item>
+    </string-array>
+
+    <string-array name="customer_type_array">
+        <item>Tất cả</item>
+    </string-array>
+</resources>

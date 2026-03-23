@@ -1,0 +1,62 @@
+@inject Microsoft.AspNetCore.Identity.RoleManager<Beetech.Tms.Core.Models.AppRole> RoleManager
+@inject Radzen.DialogService DialogService
+@inject Radzen.NotificationService NotificationService
+@inject Microsoft.Extensions.Localization.IStringLocalizer<App> L
+
+<RadzenTemplateForm Data="@Role" Submit="@((Beetech.Tms.Core.Models.AppRole args) => OnSubmit(args))">
+    <RadzenStack Gap="1rem">
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Name"]" />
+            <RadzenTextBox @bind-Value="Role.Name" Name="Name" />
+            <RadzenRequiredValidator Component="Name" Text="@L["Required"]" />
+        </RadzenStack>
+
+        <RadzenStack Gap="0.2rem">
+            <RadzenLabel Text="@L["Description"]" />
+            <RadzenTextBox @bind-Value="Role.Description" />
+        </RadzenStack>
+
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem" class="rz-mt-4">
+            <RadzenButton ButtonType="ButtonType.Button" ButtonStyle="ButtonStyle.Light" Text="@L["Cancel"]" Click="@(() => DialogService.Close(false))" />
+            <RadzenButton ButtonType="ButtonType.Submit" ButtonStyle="ButtonStyle.Primary" Text="@L["Save"]" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Beetech.Tms.Core.Models.AppRole Role { get; set; } = new();
+
+    async Task OnSubmit(Beetech.Tms.Core.Models.AppRole model)
+    {
+        Microsoft.AspNetCore.Identity.IdentityResult result;
+        if (Role.Id == 0)
+        {
+            result = await RoleManager.CreateAsync(Role);
+        }
+        else
+        {
+            var existing = await RoleManager.FindByIdAsync(Role.Id.ToString());
+            if (existing != null)
+            {
+                existing.Name = Role.Name;
+                existing.Description = Role.Description;
+                result = await RoleManager.UpdateAsync(existing);
+            }
+            else
+            {
+                result = Microsoft.AspNetCore.Identity.IdentityResult.Failed();
+            }
+        }
+
+        if (result.Succeeded)
+        {
+            NotificationService.Notify(NotificationSeverity.Success, L["Success"], L["SavedSuccessfully"]);
+            DialogService.Close(true);
+        }
+        else
+        {
+            var errors = string.Join(", ", result.Errors.Select(e => e.Description));
+            NotificationService.Notify(NotificationSeverity.Error, L["Error"], errors);
+        }
+    }
+}

@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin" >
+
+    <!-- Mask Target -->
+    <LinearLayout
+        style="@style/line_layout"
+        tools:ignore="UselessParent,MissingPrefix" >
+
+        <TextView
+            style="@style/option_caption_textview"
+            android:text="@string/mask_target" />
+
+        <View style="@style/horizontal_split_5dp" />
+
+        <TextView
+            android:id="@+id/target"
+            style="@style/option_value_textview"
+            android:layout_weight="1.5"
+            tools:ignore="InefficientWeight" />
+        
+    </LinearLayout>
+
+    <!-- Mask Action -->
+    <TextView
+        style="@style/vertical_caption_textview"
+        android:text="@string/mask_action" />
+
+    <TextView
+        android:id="@+id/action"
+        style="@style/option_value_vertical_textview"
+        tools:ignore="InefficientWeight" />
+
+    <!-- Mask Bank -->
+    <LinearLayout
+        style="@style/line_layout"
+        tools:ignore="UselessParent,MissingPrefix" >
+
+        <TextView
+            style="@style/option_caption_textview"
+            android:text="@string/bank" />
+
+        <View style="@style/horizontal_split_5dp" />
+
+        <TextView
+            android:id="@+id/bank"
+            style="@style/option_value_textview"
+            android:layout_weight="1.5"
+            tools:ignore="InefficientWeight" />
+        
+    </LinearLayout>
+
+    <!-- Mask Offset -->
+    <LinearLayout
+        style="@style/line_layout"
+        tools:ignore="UselessParent,MissingPrefix" >
+
+        <TextView
+            style="@style/option_caption_textview"
+            android:text="@string/offset" />
+
+        <View style="@style/horizontal_split_5dp" />
+
+        <TextView
+            android:id="@+id/offset"
+            style="@style/option_value_textview"
+            android:layout_weight="1.5"
+            tools:ignore="InefficientWeight" />
+        
+    </LinearLayout>
+
+    <!-- Mask Pattern -->
+    <TextView
+        style="@style/vertical_caption_textview"
+        android:text="@string/mask_pattern" />
+
+    <TextView
+        android:id="@+id/pattern"
+        style="@style/option_value_vertical_textview"
+        tools:ignore="InefficientWeight" />
+
+    <!-- Mask Pattern Length -->
+    <LinearLayout
+        style="@style/line_layout"
+        tools:ignore="UselessParent,MissingPrefix" >
+
+        <TextView
+            style="@style/option_caption_textview"
+            android:text="@string/length" />
+
+        <View style="@style/horizontal_split_5dp" />
+
+        <TextView
+            android:id="@+id/length"
+            style="@style/option_value_textview"
+            android:layout_weight="1.5"
+            tools:ignore="InefficientWeight" />
+        
+    </LinearLayout>
+    
+</LinearLayout>

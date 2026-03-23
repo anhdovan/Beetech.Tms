@@ -1,0 +1,156 @@
+@page "/laundry-processing"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Admin,Manager,Operator")]
+@inject TmsService TmsService
+@inject NotificationService NotificationService
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<App> L
+
+<PageTitle>@($"{L["LaundryProcessing"]} - Beetech TMS")</PageTitle>
+
+<RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
+    <RadzenText Text="@L["LaundryProcessingFlow"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="refresh" Text="@L["Refresh"]" Click="@LoadData" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" />
+</RadzenStack>
+
+<RadzenRow>
+    @foreach (var stage in stages)
+    {
+        <RadzenColumn Size="12" SizeMD="6" SizeLG="3">
+            <RadzenCard Style="@GetStageCardStyle(stage)">
+                <RadzenStack Orientation="Orientation.Vertical" Gap="1rem">
+                    <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" Gap="0.5rem">
+                        <RadzenIcon Icon="@stage.Icon" Style="font-size: 2rem; color: var(--rz-primary);" />
+                        <RadzenText Text="@stage.Name" TextStyle="TextStyle.H6" class="rz-m-0" />
+                    </RadzenStack>
+                    
+                    <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.SpaceBetween">
+                        <RadzenText Text="@L["CurrentItems"]" TextStyle="TextStyle.Subtitle2" />
+                        <RadzenText Text="@stage.CurrentCount.ToString()" TextStyle="TextStyle.H5" FontWeight="FontWeight.Bold" />
+                    </RadzenStack>
+
+                    @if (stage.ExpectedCount > 0)
+                    {
+                        <RadzenProgressBar Value="@((double)stage.CurrentCount / stage.ExpectedCount * 100)" 
+                                           Unit="@($"{stage.CurrentCount}/{stage.ExpectedCount}")" 
+                                           ProgressBarStyle="@GetProgressBarStyle(stage)" />
+                        
+                        @if (stage.CurrentCount != stage.ExpectedCount)
+                        {
+                            <RadzenAlert AlertStyle="AlertStyle.Warning" Variant="Variant.Flat" Shade="Shade.Lighter" Size="AlertSize.Small">
+                                @(stage.CurrentCount < stage.ExpectedCount ? string.Format(L["ItemsMissing"], stage.ExpectedCount - stage.CurrentCount) : string.Format(L["ExtraItemsDetected"], stage.CurrentCount - stage.ExpectedCount))
+                            </RadzenAlert>
+                        }
+                    }
+                    else
+                    {
+                         <RadzenText Text="@L["NoItemsExpected"]" TextStyle="TextStyle.Caption" Style="font-style: italic;" />
+                    }
+                </RadzenStack>
+            </RadzenCard>
+        </RadzenColumn>
+    }
+</RadzenRow>
+
+<RadzenCard class="rz-mt-6">
+    <RadzenText Text="@L["ProcessingDetails"]" TextStyle="TextStyle.H6" class="rz-mb-4" />
+    <RadzenDataGrid Data="@itemDetails" TItem="TextileItem" AllowFiltering="true" AllowSorting="true" PageSize="10" AllowPaging="true">
+        <Columns>
+            <RadzenDataGridColumn Property="Code" Title="@L["ItemCode"]" />
+            <RadzenDataGridColumn Property="Category.Name" Title="@L["Category"]" />
+            <RadzenDataGridColumn Property="Status" Title="@L["CurrentStage"]">
+                <Template Context="item">
+                    <RadzenBadge Text="@item.Status.ToString()" BadgeStyle="@GetStatusBadgeStyle(item.Status)" />
+                </Template>
+            </RadzenDataGridColumn>
+            <RadzenDataGridColumn Property="LastScanAt" Title="@L["LastActivity"]" FormatString="{0:g}" />
+        </Columns>
+    </RadzenDataGrid>
+</RadzenCard>
+
+@code {
+    List<ProcessStage> stages = new();
+    IEnumerable<TextileItem> itemDetails = new List<TextileItem>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadData();
+    }
+
+    async Task LoadData()
+    {
+        var items = await TmsService.GetItemsAsync();
+        itemDetails = items.Where(i => IsProcessingStatus(i.Status));
+
+        // Define stages
+        stages = new List<ProcessStage>
+        {
+            new() { 
+                Name = L["Soiled"], 
+                Icon = "inventory_2", 
+                CurrentCount = items.Count(i => i.Status == ItemStatus.Soiled),
+                ExpectedCount = 0 // Baseline
+            },
+            new() { 
+                Name = L["Washing"], 
+                Icon = "local_laundry_service", 
+                CurrentCount = items.Count(i => i.Status == ItemStatus.Washing),
+                ExpectedCount = items.Count(i => i.Status == ItemStatus.Soiled) // Expected to move from Soiled
+            },
+            new() { 
+                Name = L["Drying"], 
+                Icon = "dry", 
+                CurrentCount = items.Count(i => i.Status == ItemStatus.Drying),
+                ExpectedCount = items.Count(i => i.Status == ItemStatus.Washing)
+            },
+            new() { 
+                Name = L["Ironing"], 
+                Icon = "iron", 
+                CurrentCount = items.Count(i => i.Status == ItemStatus.Ironing),
+                ExpectedCount = items.Count(i => i.Status == ItemStatus.Drying)
+            },
+            new() { 
+                Name = L["Folding"], 
+                Icon = "stroller", // Alternative for folding/stacking
+                CurrentCount = items.Count(i => i.Status == ItemStatus.Folding),
+                ExpectedCount = items.Count(i => i.Status == ItemStatus.Ironing)
+            }
+        };
+    }
+
+    bool IsProcessingStatus(ItemStatus status) => status switch
+    {
+        ItemStatus.Soiled or ItemStatus.Washing or ItemStatus.Drying or ItemStatus.Ironing or ItemStatus.Folding => true,
+        _ => false
+    };
+
+    string GetStageCardStyle(ProcessStage stage)
+    {
+        if (stage.ExpectedCount > 0 && stage.CurrentCount != stage.ExpectedCount)
+            return "border-left: 4px solid var(--rz-warning);";
+        return "";
+    }
+
+    ProgressBarStyle GetProgressBarStyle(ProcessStage stage)
+    {
+        if (stage.CurrentCount == stage.ExpectedCount) return ProgressBarStyle.Success;
+        return ProgressBarStyle.Warning;
+    }
+
+    BadgeStyle GetStatusBadgeStyle(ItemStatus status) => status switch
+    {
+        ItemStatus.Soiled => BadgeStyle.Warning,
+        ItemStatus.Washing => BadgeStyle.Info,
+        ItemStatus.Drying => BadgeStyle.Secondary,
+        ItemStatus.Ironing => BadgeStyle.Primary,
+        ItemStatus.Folding => BadgeStyle.Success,
+        _ => BadgeStyle.Light
+    };
+
+    class ProcessStage
+    {
+        public string Name { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public int CurrentCount { get; set; }
+        public int ExpectedCount { get; set; }
+    }
+}

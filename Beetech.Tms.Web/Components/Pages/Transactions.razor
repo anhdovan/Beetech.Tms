@@ -3,15 +3,25 @@
 @inject TmsService TmsService
 @inject NotificationService NotificationService
 @inject DialogService DialogService
+@using Microsoft.Extensions.Localization
+@inject IStringLocalizer<App> L
+@using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.AspNetCore.Identity
+@using Beetech.Tms.Core.Models
+@inject AuthenticationStateProvider AuthStateProvider
+@inject UserManager<AppUser> UserManager
 
-<PageTitle>Transactions - Beetech TMS</PageTitle>
+<PageTitle>@($"{L["Transactions"]} - Beetech TMS")</PageTitle>
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
-    <RadzenText Text="Transactions" TextStyle="TextStyle.H4" class="rz-m-0" />
-    <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem">
-        <RadzenButton Icon="local_shipping" Text="New Delivery" ButtonStyle="ButtonStyle.Primary" Click="@(() => OnNewTransaction(TransactionType.Delivery))" />
-        <RadzenButton Icon="receipt_long" Text="New Receipt" ButtonStyle="ButtonStyle.Success" Click="@(() => OnNewTransaction(TransactionType.Receipt))" />
-    </RadzenStack>
+    <RadzenText Text="@L["Transactions"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <AuthorizeView Roles="Admin,Manager,Operator">
+        <RadzenStack Orientation="Orientation.Horizontal" Gap="1rem">
+            <RadzenButton Icon="local_shipping" Text="@L["NewDelivery"]" ButtonStyle="ButtonStyle.Primary" Click="@(() => OnNewTransaction(TransactionType.Delivery))" />
+            <RadzenButton Icon="receipt_long" Text="@L["NewReceipt"]" ButtonStyle="ButtonStyle.Success" Click="@(() => OnNewTransaction(TransactionType.Receipt))" />
+            <RadzenButton Icon="swap_horiz" Text="@L["InternalTransfer"]" ButtonStyle="ButtonStyle.Secondary" Click="@(() => OnNewTransaction(TransactionType.InternalTransfer))" />
+        </RadzenStack>
+    </AuthorizeView>
 </RadzenStack>
 
 <RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
@@ -20,12 +30,12 @@
                 Data="@transactions" TItem="Transaction" ColumnWidth="300px">
     <Template Context="transaction">
         <RadzenCard class="rz-m-4" Variant="Variant.Flat" Style="background-color: #f8f9fa;">
-            <RadzenText TextStyle="TextStyle.Subtitle1" Text="Transaction Items" class="rz-mb-2" Style="font-weight: 700; color: #1b6ec2;" />
+            <RadzenText TextStyle="TextStyle.Subtitle1" Text="@L["TransactionItems"]" class="rz-mb-2" Style="font-weight: 700; color: #1b6ec2;" />
             <RadzenDataGrid Data="@transaction.Items.ToList()" TItem="TransactionItem" AllowPaging="true" PageSize="5" AllowSorting="true">
                 <Columns>
-                    <RadzenDataGridColumn Property="TextileItem.Code" Title="Item Code" Width="200px" />
-                    <RadzenDataGridColumn Property="TextileItem.Category.Name" Title="Category" />
-                    <RadzenDataGridColumn Property="StatusAtTransaction" Title="Status" Width="120px">
+                    <RadzenDataGridColumn Property="TextileItem.Code" Title="@L["ItemCode"]" Width="200px" />
+                    <RadzenDataGridColumn Property="TextileItem.Category.Name" Title="@L["Category"]" />
+                    <RadzenDataGridColumn Property="StatusAtTransaction" Title="@L["Status"]" Width="120px">
                         <Template Context="ti">
                             <RadzenBadge BadgeStyle="@GetStatusBadge(ti.StatusAtTransaction)" Text="@ti.StatusAtTransaction.ToString()" />
                         </Template>
@@ -35,29 +45,31 @@
         </RadzenCard>
     </Template>
     <Columns>
-        <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
-        <RadzenDataGridColumn Property="Type" Title="Type" Width="120px">
+        <RadzenDataGridColumn Property="Id" Title="@L["ID"]" Width="80px" />
+        <RadzenDataGridColumn Property="Type" Title="@L["Type"]" Width="120px">
             <Template Context="transaction">
-                <RadzenBadge BadgeStyle="@(transaction.Type == TransactionType.Delivery ? BadgeStyle.Primary : BadgeStyle.Success)" 
+                <RadzenBadge BadgeStyle="@GetTransactionBadgeStyle(transaction.Type)" 
                              Text="@transaction.Type.ToString()" />
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Property="TransactionDate" Title="Date" FormatString="{0:d}" Width="150px" />
-        <RadzenDataGridColumn Property="FromLocation.Name" Title="From" />
-        <RadzenDataGridColumn Property="ToLocation.Name" Title="To" />
-        <RadzenDataGridColumn Property="CreatedBy.FullName" Title="Created By" />
-        <RadzenDataGridColumn Title="Items" Sortable="false" Filterable="false" Width="100px">
+        <RadzenDataGridColumn Property="TransactionDate" Title="@L["Date"]" FormatString="{0:d}" Width="150px" />
+        <RadzenDataGridColumn Property="FromLocation.Name" Title="@L["From"]" />
+        <RadzenDataGridColumn Property="ToLocation.Name" Title="@L["To"]" />
+        <RadzenDataGridColumn Property="CreatedBy.FullName" Title="@L["CreatedBy"]" />
+        <RadzenDataGridColumn Title="@L["Items"]" Sortable="false" Filterable="false" Width="100px">
             <Template Context="transaction">
                 @transaction.Items.Count
             </Template>
         </RadzenDataGridColumn>
-        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true">
+        <RadzenDataGridColumn Title="@L["Actions"]" Sortable="false" Filterable="false" Width="120px" Frozen="true">
             <Template Context="transaction">
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
                     <RadzenButton Icon="visibility" ButtonStyle="ButtonStyle.Info" Variant="Variant.Flat" Size="ButtonSize.Medium" 
                                   Click="@(() => ViewTransaction(transaction))" @onclick:stopPropagation="true" />
-                    <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
-                                  Click="@(() => OnDeleteTransaction(transaction))" @onclick:stopPropagation="true" />
+                    <AuthorizeView Roles="Admin,Manager,Operator" Context="authContext">
+                        <RadzenButton Icon="delete" ButtonStyle="ButtonStyle.Danger" Variant="Variant.Flat" Size="ButtonSize.Medium" 
+                                      Click="@(() => OnDeleteTransaction(transaction))" @onclick:stopPropagation="true" />
+                    </AuthorizeView>
                 </RadzenStack>
             </Template>
         </RadzenDataGridColumn>
@@ -75,12 +87,41 @@
 
     async Task LoadData()
     {
-        transactions = await TmsService.GetTransactionsAsync();
+        var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.IsInRole("Customer"))
+        {
+            var appUser = await UserManager.GetUserAsync(user);
+            if (appUser?.CustomerId != null)
+            {
+                transactions = await TmsService.GetTransactionsAsync(appUser.CustomerId);
+            }
+            else
+            {
+                transactions = new List<Transaction>();
+            }
+        }
+        else
+        {
+            transactions = await TmsService.GetTransactionsAsync();
+        }
     }
 
     async Task OnNewTransaction(TransactionType type)
     {
-        var result = await DialogService.OpenAsync<TransactionDialog>(type == TransactionType.Delivery ? "New Delivery" : "New Receipt",
+        string title = type switch
+        {
+            TransactionType.Delivery => L["NewDelivery"],
+            TransactionType.Receipt => L["NewReceipt"],
+            TransactionType.InternalTransfer => L["InternalTransfer"],
+            TransactionType.LaundrySend => L["LaundrySend"],
+            TransactionType.LaundryReceive => L["LaundryReceive"],
+            TransactionType.Discard => L["ItemsDiscard"],
+            _ => L["NewTransaction"]
+        };
+
+        var result = await DialogService.OpenAsync<TransactionDialog>(title,
             new Dictionary<string, object> { { "Type", type } }, 
             new DialogOptions { Width = "900px", Height = "700px", Resizable = true, Draggable = true });
 
@@ -93,25 +134,36 @@
 
     async Task ViewTransaction(Transaction transaction)
     {
-        await DialogService.OpenAsync<TransactionDialog>("Transaction Details",
+        await DialogService.OpenAsync<TransactionDialog>(L["TransactionDetails"],
             new Dictionary<string, object> { { "TransactionId", transaction.Id } },
             new DialogOptions { Width = "900px", Height = "700px", Resizable = true, Draggable = true });
     }
 
     async Task OnDeleteTransaction(Transaction transaction)
     {
-        var confirm = await DialogService.Confirm("Are you sure you want to delete this transaction? This will ONLY soft delete the record.", "Delete Transaction");
+        var confirm = await DialogService.Confirm(L["ConfirmDeleteTransaction"], L["DeleteTransactionTitle"]);
         if (confirm == true)
         {
             var success = await TmsService.DeleteTransactionAsync(transaction.Id);
             if (success)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Transaction deleted" });
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["TransactionDeleted"] });
                 await LoadData();
                 if (grid != null) await grid.Reload();
             }
         }
     }
+
+    BadgeStyle GetTransactionBadgeStyle(TransactionType type) => type switch
+    {
+        TransactionType.Delivery => BadgeStyle.Primary,
+        TransactionType.Receipt => BadgeStyle.Success,
+        TransactionType.InternalTransfer => BadgeStyle.Secondary,
+        TransactionType.LaundrySend => BadgeStyle.Warning,
+        TransactionType.LaundryReceive => BadgeStyle.Info,
+        TransactionType.Discard => BadgeStyle.Danger,
+        _ => BadgeStyle.Light
+    };
 
     BadgeStyle GetStatusBadge(ItemStatus status) => status switch
     {

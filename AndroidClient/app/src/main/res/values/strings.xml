@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Beetech TMS</string>
+    <string name="title_files">Sản phẩm</string>
+    <string name="title_inventory">Kiểm kê</string>
+    <string name="title_locate">Tìm kiếm</string>
+    <string name="title_settings">Cài đặt</string>
+    <string name="title_write_tag">Ghi thẻ</string>
+    <string name="title_workflow">Giao dịch</string>
+    
+    <string name="action_write_all">Ghi tất cả</string>
+    <string name="msg_confirm_write_all">Bạn có chắc chắn muốn ghi thẻ cho tất cả sản phẩm đã chọn?</string>
+    
+    <string name="login_title">Đăng nhập</string>
+    <string name="login_subtitle">Hệ thống Quản lý Đồ vải Beetech</string>
+    <string name="hint_username">Tên đăng nhập</string>
+    <string name="hint_password">Mật khẩu</string>
+    <string name="action_login">Đăng nhập</string>
+    <string name="error_field_empty">Trường này không được để trống</string>
+    <string name="action_logout">Đăng xuất</string>
+    
+    <string-array name="workflow_type_array">
+        <item>Thu gom đồ bẩn (Department -> Laundry)</item>
+        <item>Giao đồ sạch (Laundry -> Department)</item>
+        <item>Chuyển kho nội bộ (Location -> Location)</item>
+    </string-array>
+</resources>

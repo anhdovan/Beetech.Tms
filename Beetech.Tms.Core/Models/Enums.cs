@@ -9,7 +9,15 @@ public enum ItemStatus
     Lost,
     Damaged,
     Missing,
-    Relocated
+    Relocated,
+    Unregistered,
+    Washing,
+    Drying,
+    Ironing,
+    Folding,
+    Clean,
+    Packing,
+    Returned
 }
 
 public enum TransactionType
@@ -20,8 +28,16 @@ public enum TransactionType
     Receipt,
     LaundrySend,
     LaundryReceive,
+    InternalTransfer,
     Discard,
-    InventoryAudit
+    InventoryAudit,
+    Washing,
+    Drying,
+    Ironing,
+    Folding,
+    Packing,
+    PackingMonitor,
+    Return
 }
 
 public enum LocationType
@@ -47,4 +63,11 @@ public enum AuditAction
     CheckedOut,
     Inventoried,
     Located
+}
+
+public enum PackageType
+{
+    Carton = 1,
+    NilonBag = 2,
+    Other = 3
 }

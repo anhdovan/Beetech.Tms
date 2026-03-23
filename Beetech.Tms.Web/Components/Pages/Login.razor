@@ -1,9 +1,11 @@
 @page "/login"
 @layout EmptyLayout
 @using Microsoft.AspNetCore.Components.Authorization
+@using Microsoft.Extensions.Localization
 @inject NavigationManager NavigationManager
+@inject IStringLocalizer<App> L
 
-<PageTitle>Login - Beetech TMS</PageTitle>
+<PageTitle>@($"{L["Login"]} - Beetech TMS")</PageTitle>
 
 <div class="login-container">
     <RadzenCard class="rz-my-12 rz-mx-auto rz-p-12 login-card" style="max-width: 450px;">
@@ -20,19 +22,19 @@
 
             <form action="api/account/login" method="post" style="width: 100%;">
                 <RadzenStack Gap="1rem">
-                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="Email" />
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="@L["Email"]" />
                     <RadzenTextBox Name="email" style="width: 100%;" />
                     
-                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="Password" />
+                    <RadzenText TextStyle="TextStyle.Subtitle2" Text="@L["Password"]" />
                     <RadzenPassword Name="password" style="width: 100%;" />
                     
-                    <RadzenButton ButtonType="ButtonType.Submit" Text="Login" Icon="login" 
+                    <RadzenButton ButtonType="ButtonType.Submit" Text="@L["Login"]" Icon="login" 
                                   ButtonStyle="ButtonStyle.Primary" class="rz-mt-4" style="width: 100%;" />
                 </RadzenStack>
             </form>
             
             <RadzenText TextStyle="TextStyle.Caption" class="rz-mt-4">
-                Hint: admin@beetech.com / User@123
+                @L["LoginHint"]
             </RadzenText>
         </RadzenStack>
     </RadzenCard>

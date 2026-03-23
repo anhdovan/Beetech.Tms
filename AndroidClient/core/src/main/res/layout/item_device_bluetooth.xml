@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="5dp" >
+
+    <ImageView android:id="@+id/device_type"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:src="@drawable/ic_product_rp100" />
+
+    <View android:layout_width="5dp" android:layout_height="0dp" />
+    
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+        
+        <TextView android:id="@+id/device_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/device_name_rp100"
+            android:textSize="20sp"
+            android:textColor="@color/device_name_color"
+            android:textStyle="bold"/>
+        
+        <TextView android:id="@+id/device_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/sample_device_address"
+            android:textSize="14sp"
+            android:textColor="@color/device_address_color"/>
+        
+    </LinearLayout>
+    
+</LinearLayout>

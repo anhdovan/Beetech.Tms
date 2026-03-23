@@ -10,6 +10,7 @@ public class AppUser : IdentityUser<int>, ISoftDelete, IAuditable
     public string FullName { get; set; } = string.Empty;
 
     public int? DepartmentId { get; set; }
+    public int? CustomerId { get; set; }
 
     public bool IsActive { get; set; } = true;
 
@@ -23,4 +24,7 @@ public class AppUser : IdentityUser<int>, ISoftDelete, IAuditable
     // Navigation
     [ForeignKey(nameof(DepartmentId))]
     public Department? Department { get; set; }
+
+    [ForeignKey(nameof(CustomerId))]
+    public Customer? Customer { get; set; }
 }

@@ -13,10 +13,14 @@ public class TmsDbContext : IdentityDbContext<AppUser, AppRole, int>
     public DbSet<Category> Categories { get; set; }
     public DbSet<Location> Locations { get; set; }
     public DbSet<Department> Departments { get; set; }
+    public DbSet<Customer> Customers { get; set; }
     public DbSet<TextileItem> TextileItems { get; set; }
     public DbSet<Transaction> Transactions { get; set; }
     public DbSet<TransactionItem> TransactionItems { get; set; }
+    public DbSet<PackingUnit> PackingUnits { get; set; }
     public DbSet<AuditLog> AuditLogs { get; set; }
+    public DbSet<InventoryAuditSession> InventoryAuditSessions { get; set; }
+    public DbSet<InventoryAuditResult> InventoryAuditResults { get; set; }
 
     public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = default)
     {
@@ -56,10 +60,14 @@ public class TmsDbContext : IdentityDbContext<AppUser, AppRole, int>
         builder.Entity<Category>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Location>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Department>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<Customer>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<TextileItem>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<Transaction>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<TransactionItem>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<PackingUnit>().HasQueryFilter(e => !e.IsDeleted);
         builder.Entity<AppUser>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<InventoryAuditSession>().HasQueryFilter(e => !e.IsDeleted);
+        builder.Entity<InventoryAuditResult>().HasQueryFilter(e => !e.IsDeleted);
 
         // Identity table names
         builder.Entity<AppUser>(entity => { entity.ToTable(name: "Users"); });

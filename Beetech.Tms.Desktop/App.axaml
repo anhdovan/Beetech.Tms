@@ -1,0 +1,50 @@
+<Application xmlns="https://github.com/avaloniaui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:materialIcons="clr-namespace:Material.Icons.Avalonia;assembly=Material.Icons.Avalonia"
+             xmlns:converters="clr-namespace:Beetech.Tms.Desktop.Converters"
+             x:Class="Beetech.Tms.Desktop.App"
+             RequestedThemeVariant="Default">
+
+    <Application.Resources>
+        <!-- High Contrast Color Palette -->
+        <Color x:Key="TmsBlue">#0F172A</Color>
+        <SolidColorBrush x:Key="TmsBlueBrush" Color="{StaticResource TmsBlue}"/>
+        
+        <Color x:Key="TmsAccent">#1D4ED8</Color>
+        <SolidColorBrush x:Key="TmsAccentBrush" Color="{StaticResource TmsAccent}"/>
+        
+        <Color x:Key="TmsGreen">#15803D</Color>
+        <SolidColorBrush x:Key="TmsGreenBrush" Color="{StaticResource TmsGreen}"/>
+        
+        <Color x:Key="TmsRed">#B91C1C</Color>
+        <SolidColorBrush x:Key="TmsRedBrush" Color="{StaticResource TmsRed}"/>
+        
+        <Color x:Key="TmsOrange">#B45309</Color>
+        <SolidColorBrush x:Key="TmsOrangeBrush" Color="{StaticResource TmsOrange}"/>
+
+        <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
+        <CornerRadius x:Key="TextControlCornerRadius">12</CornerRadius>
+        <CornerRadius x:Key="OverlayCornerRadius">12</CornerRadius>
+
+        <converters:BoolToBrushConverter x:Key="BoolToBlueBrush" 
+                                         TrueBrush="{StaticResource TmsAccentBrush}" 
+                                         FalseBrush="Transparent"/>
+        <converters:BoolToBrushConverter x:Key="BoolToWhiteBrush" 
+                                         TrueBrush="White" 
+                                         FalseBrush="#9CA3AF"/>
+        <converters:BoolToBrushConverter x:Key="BoolToGreenBrush" 
+                                         TrueBrush="{StaticResource TmsGreenBrush}" 
+                                         FalseBrush="Gray"/>
+        <converters:BoolToBrushConverter x:Key="BoolToRedBrush" 
+                                         TrueBrush="{StaticResource TmsRedBrush}" 
+                                         FalseBrush="Transparent"/>
+        <converters:StatusToBrushConverter x:Key="StatusToBrushConverter"/>
+        <converters:LanguageToColorConverter x:Key="LanguageToColorConverter"/>
+    </Application.Resources>
+
+    <Application.Styles>
+        <FluentTheme />
+        <StyleInclude Source="avares://Avalonia.Controls.DataGrid/Themes/Fluent.xaml"/>
+        <materialIcons:MaterialIconStyles />
+    </Application.Styles>
+</Application>

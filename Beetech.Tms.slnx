@@ -2,4 +2,7 @@
   <Project Path="Beetech.Tms.Common/Beetech.Tms.Common.csproj" />
   <Project Path="Beetech.Tms.Core/Beetech.Tms.Core.csproj" />
   <Project Path="Beetech.Tms.Web/Beetech.Tms.Web.csproj" />
+  <Project Path="Beetech.Tms.Desktop/Beetech.Tms.Desktop.csproj" />
+  <Project Path="../Beetech.DocMgmt/Beetech.Adv.Common/Beetech.Adv.Common.csproj" />
+  <Project Path="../Beetech.DocMgmt/Beetech.Adv.Readers/Beetech.Adv.Readers.csproj" />
 </Solution>

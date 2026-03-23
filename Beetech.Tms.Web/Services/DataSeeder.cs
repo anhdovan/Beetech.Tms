@@ -25,7 +25,7 @@ public class DataSeeder
         if (await _context.Categories.AnyAsync()) return;
 
         // Seed Roles
-        var roles = new[] { "Admin", "Manager", "Operator", "Customer", "Laundry" };
+        var roles = new[] { "Admin", "LaundryStaff", "HotelHousekeeping", "HospitalInventoryManager", "Customer" };
         foreach (var role in roles)
         {
             if (!await _roleManager.RoleExistsAsync(role))
@@ -38,10 +38,9 @@ public class DataSeeder
         var sampleUsers = new[]
         {
             new { Email = "admin@beetech.com", Name = "System Admin", Role = "Admin" },
-            new { Email = "manager@hospital.com", Name = "Hospital Manager", Role = "Manager" },
-            new { Email = "operator@hospital.com", Name = "Hospital Operator", Role = "Operator" },
-            new { Email = "customer@hospital.com", Name = "Department Lead", Role = "Customer" },
-            new { Email = "laundry@clean.com", Name = "Laundry Manager", Role = "Laundry" }
+            new { Email = "laundry@beetech.com", Name = "Laundry Operator", Role = "LaundryStaff" },
+            new { Email = "housekeeping@beetech.com", Name = "Hotel Housekeeping", Role = "HotelHousekeeping" },
+            new { Email = "manager@hospital.com", Name = "Hospital Inventory Manager", Role = "HospitalInventoryManager" }
         };
 
         foreach (var u in sampleUsers)
@@ -83,10 +82,56 @@ public class DataSeeder
             new Location { Name = "Kho Sạch Trung Tâm", Type = LocationType.Storage, IsActive = true },
             new Location { Name = "Kho Đồ Bẩn", Type = LocationType.Storage, IsActive = true },
             new Location { Name = "Xưởng Giặt", Type = LocationType.Laundry, IsActive = true },
-            new Location { Name = "Sảnh Chờ Tầng 1", Type = LocationType.Hotel, IsActive = true }
+            new Location { Name = "Sảnh Chờ Tầng 1", Type = LocationType.Hotel, IsActive = true },
+            new Location { Name = "Khu vực Giặt", Type = LocationType.Laundry, IsActive = true },
+            new Location { Name = "Khu vực Sấy", Type = LocationType.Laundry, IsActive = true },
+            new Location { Name = "Khu vực Ủi", Type = LocationType.Laundry, IsActive = true },
+            new Location { Name = "Khu vực Gấp", Type = LocationType.Laundry, IsActive = true },
+            new Location { Name = "Khu vực Đóng gói", Type = LocationType.Laundry, IsActive = true },
+            new Location { Name = "Khu vực Giao trả", Type = LocationType.Laundry, IsActive = true }
         };
         await _context.Locations.AddRangeAsync(locations);
         await _context.SaveChangesAsync();
+
+        // Seed Customers
+        var customers = new[]
+        {
+            new Customer { Name = "Khách sạn Marriott", Code = "MARRIOTT", Address = "84 Duy Tân", ContactPerson = "Ms. Lan", ContactPhone = "0901234567", IsInternal = false, IsActive = true },
+            new Customer { Name = "Bệnh viện Đa khoa", Code = "HOSPITAL", Address = "12 Chu Văn An", ContactPerson = "Mr. Tuấn", ContactPhone = "0987654321", IsInternal = false, IsActive = true },
+            new Customer { Name = "Nội bộ - Khối Hành chính", Code = "INTERNAL_ADMIN", Address = "Tầng 5", IsInternal = true, IsActive = true }
+        };
+        await _context.Customers.AddRangeAsync(customers);
+        await _context.SaveChangesAsync();
+
+        // Seed Customer Users
+        var customerUsers = new[]
+        {
+            new { Email = "marriott@beetech.com", Name = "Marriott Admin", Role = "Customer", CustomerId = customers[0].Id },
+            new { Email = "hospital@beetech.com", Name = "Hospital Admin", Role = "Customer", CustomerId = customers[1].Id }
+        };
+
+        foreach (var u in customerUsers)
+        {
+            var user = await _userManager.FindByEmailAsync(u.Email);
+            if (user == null)
+            {
+                user = new AppUser
+                {
+                    UserName = u.Email,
+                    Email = u.Email,
+                    FullName = u.Name,
+                    IsActive = true,
+                    EmailConfirmed = true,
+                    CustomerId = u.CustomerId
+                };
+                var result = await _userManager.CreateAsync(user, "User@123");
+                if (result.Succeeded)
+                {
+                    await _userManager.AddToRoleAsync(user, u.Role);
+                }
+            }
+        }
+
 
         // Seed Categories from Image
         var categories = new[]
@@ -229,6 +274,224 @@ public class DataSeeder
         }
         await _context.Transactions.AddAsync(tx3);
 
+        // 4. Internal Transfer between departments
+        var dept2 = departments[1];
+        var tx4 = new Transaction
+        {
+            TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-004",
+            Type = TransactionType.InternalTransfer,
+            DepartmentId = dept2.Id, // Moved to this dept
+            TransactionDate = DateTime.UtcNow.AddMinutes(-10),
+            Notes = $"Seeded: Internal Transfer to {dept2.Name}"
+        };
+
+        var txItems4 = allItems.Where(i => i.Status == ItemStatus.InUse).OrderBy(x => Guid.NewGuid()).Take(2).Select(item => new TransactionItem
+        {
+            TextileItemId = item.Id,
+            StatusAtTransaction = ItemStatus.InUse
+        }).ToList();
+
+        foreach (var ti in txItems4) tx4.Items.Add(ti);
+        foreach (var ti in txItems4)
+        {
+            var textile = allItems.First(i => i.Id == ti.TextileItemId);
+            textile.CurrentDepartmentId = dept2.Id;
+        }
+        await _context.Transactions.AddAsync(tx4);
+
+        // 5. Another history entry for one of the items to show tracing
+        var tx5 = new Transaction
+        {
+            TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-005",
+            Type = TransactionType.LaundryReceive,
+            ToLocationId = locations[0].Id, // Back to central
+            TransactionDate = DateTime.UtcNow.AddMinutes(-5),
+            Notes = "Seeded: Second history entry for tracing demo"
+        };
+        var itemToTrace = allItems[0];
+        tx5.Items.Add(new TransactionItem { TextileItemId = itemToTrace.Id, StatusAtTransaction = ItemStatus.Available });
+        await _context.Transactions.AddAsync(tx5);
+
         await _context.SaveChangesAsync();
+
+        // 6-10. Complete Laundry Cycle Sequence
+        var laundryReceiveLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Xưởng Giặt"))?.Id;
+        var washingLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Giặt"))?.Id;
+        var dryingLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Sấy"))?.Id;
+        var ironingLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Ủi"))?.Id;
+        var foldingLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Gấp"))?.Id;
+        var packingLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Đóng gói"))?.Id;
+        var returnLocId = (await _context.Locations.FirstOrDefaultAsync(l => l.Name == "Khu vực Giao trả"))?.Id;
+
+        var marriott = await _context.Customers.FirstOrDefaultAsync(c => c.Code == "MARRIOTT");
+
+        if (laundryReceiveLocId != null && washingLocId != null)
+        {
+            // 6. Laundry Receive from Hotel
+            var tx6 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-006",
+                Type = TransactionType.LaundryReceive,
+                ToLocationId = laundryReceiveLocId,
+                CustomerId = marriott?.Id,
+                TransactionDate = DateTime.UtcNow.AddHours(-10),
+                Description = "Morning batch from Marriot Hotel",
+                Notes = "Seeded: Workflow Start - Laundry Receive"
+            };
+            var itemsForCycle = allItems.Skip(10).Take(10).ToList();
+            for (int i = 0; i < itemsForCycle.Count; i++)
+            {
+                var item = itemsForCycle[i];
+                var ti = new TransactionItem 
+                { 
+                    TextileItemId = item.Id, 
+                    StatusAtTransaction = ItemStatus.Soiled,
+                    Notes = (i == 0) ? "Wine stain - special treatment needed" : null
+                };
+                tx6.Items.Add(ti);
+                item.Status = ItemStatus.Soiled;
+                item.CurrentLocationId = laundryReceiveLocId;
+                item.CurrentCustomerId = marriott?.Id;
+            }
+            await _context.Transactions.AddAsync(tx6);
+            await _context.SaveChangesAsync(); // Save to get Id
+
+            // 7. Washing (Source: TX6)
+            var tx7 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-007",
+                Type = TransactionType.Washing,
+                ToLocationId = washingLocId,
+                SourceTransactionId = tx6.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddHours(-8),
+                Description = "Batch Marriot - Heavy wash cycle",
+                Notes = "Seeded: Workflow - Washing"
+            };
+            foreach (var item in itemsForCycle)
+            {
+                tx7.Items.Add(new TransactionItem { TextileItemId = item.Id, StatusAtTransaction = ItemStatus.Washing });
+                item.Status = ItemStatus.Washing;
+                item.CurrentLocationId = washingLocId;
+            }
+            await _context.Transactions.AddAsync(tx7);
+            await _context.SaveChangesAsync();
+
+            // 8. Drying (Source: TX7)
+            var tx8 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-008",
+                Type = TransactionType.Drying,
+                ToLocationId = dryingLocId,
+                SourceTransactionId = tx7.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddHours(-6),
+                Description = "Batch Marriot - High temp drying",
+                Notes = "Seeded: Workflow - Drying"
+            };
+            foreach (var item in itemsForCycle)
+            {
+                tx8.Items.Add(new TransactionItem { TextileItemId = item.Id, StatusAtTransaction = ItemStatus.Drying });
+                item.Status = ItemStatus.Drying;
+                item.CurrentLocationId = dryingLocId;
+            }
+            await _context.Transactions.AddAsync(tx8);
+            await _context.SaveChangesAsync();
+
+            // 9. Ironing (Source: TX8)
+            var tx9 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-009",
+                Type = TransactionType.Ironing,
+                ToLocationId = ironingLocId,
+                SourceTransactionId = tx8.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddHours(-4),
+                Notes = "Seeded: Workflow - Ironing"
+            };
+            foreach (var item in itemsForCycle)
+            {
+                tx9.Items.Add(new TransactionItem { TextileItemId = item.Id, StatusAtTransaction = ItemStatus.Ironing });
+                item.Status = ItemStatus.Ironing;
+                item.CurrentLocationId = ironingLocId;
+            }
+            await _context.Transactions.AddAsync(tx9);
+            await _context.SaveChangesAsync();
+
+            // 10. Folding (Source: TX9)
+            var tx10 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-010",
+                Type = TransactionType.Folding,
+                ToLocationId = foldingLocId,
+                SourceTransactionId = tx9.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddHours(-2),
+                Notes = "Seeded: Workflow - Folding"
+            };
+            foreach (var item in itemsForCycle)
+            {
+                tx10.Items.Add(new TransactionItem { TextileItemId = item.Id, StatusAtTransaction = ItemStatus.Folding });
+                item.Status = ItemStatus.Folding;
+                item.CurrentLocationId = foldingLocId;
+            }
+            await _context.Transactions.AddAsync(tx10);
+            await _context.SaveChangesAsync();
+
+            // 11. Packing (Source: TX10)
+            var tx11 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-011",
+                Type = TransactionType.Packing,
+                ToLocationId = packingLocId,
+                SourceTransactionId = tx10.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddHours(-1),
+                Notes = "Seeded: Workflow - Packing into containers"
+            };
+
+            var box1 = new PackingUnit { Code = "BOX-MAR-001", Type = PackageType.Carton, Weight = 12.5m };
+            var bag1 = new PackingUnit { Code = "BAG-MAR-001", Type = PackageType.NilonBag, Weight = 4.2m };
+            tx11.PackingUnits.Add(box1);
+            tx11.PackingUnits.Add(bag1);
+
+            for (int i = 0; i < itemsForCycle.Count; i++)
+            {
+                var item = itemsForCycle[i];
+                var ti = new TransactionItem 
+                { 
+                    TextileItemId = item.Id, 
+                    StatusAtTransaction = ItemStatus.Packing,
+                    PackingUnit = (i < 7) ? box1 : bag1 // Split items between box and bag
+                };
+                tx11.Items.Add(ti);
+                item.Status = ItemStatus.Packing;
+                item.CurrentLocationId = packingLocId;
+            }
+            await _context.Transactions.AddAsync(tx11);
+            await _context.SaveChangesAsync();
+
+            // 12. Return/Delivery (Source: TX11)
+            var tx12 = new Transaction
+            {
+                TransactionNumber = $"TX-{DateTime.UtcNow:yyyyMMdd}-012",
+                Type = TransactionType.Return,
+                ToLocationId = returnLocId,
+                CustomerId = marriott?.Id,
+                SourceTransactionId = tx11.Id,
+                TargetQuantity = itemsForCycle.Count,
+                TransactionDate = DateTime.UtcNow.AddMinutes(-15),
+                Description = "Delivery back to Marriot",
+                Notes = "Seeded: Workflow End - Return Delivery"
+            };
+            foreach (var item in itemsForCycle)
+            {
+                tx12.Items.Add(new TransactionItem { TextileItemId = item.Id, StatusAtTransaction = ItemStatus.Returned });
+                item.Status = ItemStatus.Returned;
+                item.CurrentLocationId = returnLocId;
+            }
+            await _context.Transactions.AddAsync(tx12);
+            await _context.SaveChangesAsync();
+        }
     }
 }

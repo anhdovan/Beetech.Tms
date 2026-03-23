@@ -1,0 +1,115 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:Beetech.Tms.Desktop.ViewModels;assembly=Beetech.Tms.Desktop"
+        xmlns:material="using:Material.Icons.Avalonia"
+        x:Class="Beetech.Tms.Desktop.Views.LoginWindow"
+        x:DataType="vm:LoginViewModel"
+        Title="{Binding L[AppTitleLogin]}"
+        Width="450" Height="600"
+        CanResize="False"
+        WindowStartupLocation="CenterScreen"
+        ExtendClientAreaToDecorationsHint="True"
+        ExtendClientAreaTitleBarHeightHint="0"
+        SystemDecorations="None"
+        Background="Transparent"
+        TransparencyLevelHint="Transparent">
+
+    <Border CornerRadius="24" ClipToBounds="True" BoxShadow="0 10 50 0 #66000000">
+        <Panel>
+            <!-- Background Gradient -->
+            <Border Background="{StaticResource TmsBlueBrush}">
+                <Canvas Opacity="0.3">
+                    <Ellipse Width="400" Height="400" Canvas.Top="-100" Canvas.Left="-100" Fill="#3B82F6"/>
+                    <Ellipse Width="300" Height="300" Canvas.Bottom="-100" Canvas.Right="-50" Fill="#10B981"/>
+                </Canvas>
+            </Border>
+
+            <!-- Glassmorphism Card -->
+            <Border Background="#D9FFFFFF" Margin="20" CornerRadius="20"
+                    BorderBrush="white" BorderThickness="1">
+                <StackPanel Margin="30" VerticalAlignment="Center" Spacing="25">
+                    
+                    <!-- Logo & Title -->
+                    <StackPanel Spacing="10">
+                        <Image Source="/Assets/logo.png" Width="100" Height="100" HorizontalAlignment="Center">
+                            <Image.Transitions>
+                                <Transitions>
+                                    <DoubleTransition Property="Opacity" Duration="0:0:1"/>
+                                </Transitions>
+                            </Image.Transitions>
+                        </Image>
+                        
+                        <StackPanel Spacing="2">
+                            <TextBlock Text="{Binding L[AppTitleShort]}" FontSize="32" FontWeight="Heavy" 
+                                       HorizontalAlignment="Center" Foreground="{StaticResource TmsBlueBrush}"/>
+                            <TextBlock Text="{Binding L[AppSubtitle]}" FontSize="14" FontWeight="SemiBold"
+                                       HorizontalAlignment="Center" Foreground="#374151"/>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Inputs -->
+                    <StackPanel Spacing="15">
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="{Binding L[ServerUrlLabel]}" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="5,0"/>
+                            <TextBox Text="{Binding ServerUrl}" Watermark="https://api.beetech.com" Height="45" CornerRadius="12"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="{Binding L[UsernameLabel]}" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="5,0"/>
+                            <TextBox Text="{Binding Username}" Watermark="{Binding L[UsernameWatermark]}" Height="45" CornerRadius="12"/>
+                        </StackPanel>
+
+                        <StackPanel Spacing="5">
+                            <TextBlock Text="{Binding L[PasswordLabel]}" FontSize="12" FontWeight="Bold" Foreground="#374151" Margin="5,0"/>
+                            <TextBox Text="{Binding Password}" Watermark="••••••••" PasswordChar="•" 
+                                     RevealPassword="{Binding IsPasswordVisible}"
+                                     Height="45" CornerRadius="12">
+                                <TextBox.InnerRightContent>
+                                    <Button Command="{Binding TogglePasswordVisibilityCommand}" Background="Transparent" BorderThickness="0">
+                                        <material:MaterialIcon Kind="{Binding PasswordIcon}" Width="20" Height="20" Foreground="#374151"/>
+                                    </Button>
+                                </TextBox.InnerRightContent>
+                            </TextBox>
+                        </StackPanel>
+                    </StackPanel>
+
+                    <!-- Login Button -->
+                    <Button Command="{Binding LoginCommand}" 
+                            Classes="primary"
+                            Height="50" CornerRadius="25"
+                            HorizontalAlignment="Stretch"
+                            Background="{StaticResource TmsAccentBrush}" Foreground="White">
+                        <Grid>
+                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" 
+                                        IsVisible="{Binding !IsBusy}" Spacing="10">
+                                <material:MaterialIcon Kind="ChevronRight" Width="20" Height="20"/>
+                                <TextBlock Text="{Binding L[SignIn]}" FontWeight="Bold" FontSize="16"/>
+                            </StackPanel>
+                            <ProgressBar IsIndeterminate="True" IsVisible="{Binding IsBusy}" Width="30" Foreground="White"/>
+                        </Grid>
+                    </Button>
+
+                    <TextBlock Text="{Binding ErrorMessage}" Foreground="{StaticResource TmsRedBrush}" 
+                               FontSize="12" HorizontalAlignment="Center" TextAlignment="Center" TextWrapping="Wrap"/>
+                    
+                    <!-- Close App -->
+                    <Button HorizontalAlignment="Center" Background="Transparent" Foreground="#374151"
+                            Command="{Binding $parent[Window].Close}" x:CompileBindings="False">
+                        <TextBlock Text="{Binding L[ExitApplication]}" FontSize="10" FontWeight="Heavy" LetterSpacing="1"/>
+                    </Button>
+                </StackPanel>
+            </Border>
+        </Panel>
+    </Border>
+
+    <Window.Styles>
+        <Style Selector="Button.primary:hover /template/ ContentPresenter">
+            <Setter Property="Background" Value="{StaticResource TmsBlueBrush}"/>
+            <Setter Property="Transitions">
+                <Transitions>
+                    <BrushTransition Property="Background" Duration="0:0:0.2"/>
+                </Transitions>
+            </Setter>
+        </Style>
+    </Window.Styles>
+</Window>

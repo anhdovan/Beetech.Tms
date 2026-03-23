@@ -1,0 +1,94 @@
+@using Beetech.Tms.Core.Models
+@using Beetech.Tms.Web.Services
+@inject TmsService TmsService
+@inject DialogService DialogService
+@inject NotificationService NotificationService
+@inject IStringLocalizer<App> L
+
+<RadzenTemplateForm TItem="Customer" Data="@Customer" Submit="@OnSubmit">
+    <RadzenStack Gap="1rem">
+        <RadzenFieldset Text="@L["CustomerDetails"]">
+            <RadzenStack Gap="1rem">
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Name"]" Component="Name" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Customer.Name" Name="Name" />
+                        <RadzenRequiredValidator Component="Name" Text="@L["NameRequired"]" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Code"]" Component="Code" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Customer.Code" Name="Code" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Internal"]" Component="IsInternal" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenCheckBox @bind-Value="@Customer.IsInternal" Name="IsInternal" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Address"]" Component="Address" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextArea style="display: block; width: 100%;" @bind-Value="@Customer.Address" Name="Address" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["ContactPerson"]" Component="ContactPerson" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Customer.ContactPerson" Name="ContactPerson" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Phone"]" Component="ContactPhone" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Customer.ContactPhone" Name="ContactPhone" />
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-4 rz-text-align-right">
+                        <RadzenLabel Text="@L["Active"]" Component="IsActive" />
+                    </div>
+                    <div class="col-md-8">
+                        <RadzenCheckBox @bind-Value="@Customer.IsActive" Name="IsActive" />
+                    </div>
+                </div>
+            </RadzenStack>
+        </RadzenFieldset>
+        <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
+            <RadzenButton ButtonType="ButtonType.Submit" Text="@L["Save"]" Icon="save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@L["Cancel"]" Click="@((args) => DialogService.Close(false))" />
+        </RadzenStack>
+    </RadzenStack>
+</RadzenTemplateForm>
+
+@code {
+    [Parameter] public Customer Customer { get; set; } = new();
+
+    async Task OnSubmit(Customer customer)
+    {
+        var success = await TmsService.UpsertCustomerAsync(customer);
+        if (success)
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["CustomerSaved"] });
+            DialogService.Close(true);
+        }
+        else
+        {
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = L["Error"], Detail = L["FailedSaveCustomer"] });
+        }
+    }
+}

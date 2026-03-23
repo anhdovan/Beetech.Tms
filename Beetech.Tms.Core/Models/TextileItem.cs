@@ -23,6 +23,7 @@ public class TextileItem : BaseEntity
 
     public int? CurrentLocationId { get; set; }
     public int? CurrentDepartmentId { get; set; }
+    public int? CurrentCustomerId { get; set; }
 
     public DateTime LastScanAt { get; set; } = DateTime.UtcNow;
 
@@ -35,4 +36,7 @@ public class TextileItem : BaseEntity
 
     [ForeignKey(nameof(CurrentDepartmentId))]
     public Department? CurrentDepartment { get; set; }
+
+    [ForeignKey(nameof(CurrentCustomerId))]
+    public Customer? CurrentCustomer { get; set; }
 }

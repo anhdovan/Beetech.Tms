@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_gravity="center_vertical"
+    android:orientation="horizontal"
+    android:padding="5dp" >
+    
+    <CheckBox android:id="@+id/used"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:focusable="false"
+        android:focusableInTouchMode="false" />
+    
+    <View style="@style/horizontal_split_3dp" />
+    
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_gravity="center_vertical"
+	    android:orientation="vertical" >
+	    
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:orientation="horizontal" >
+		    
+		    <TextView android:id="@+id/target"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:layout_gravity="center_vertical"
+		        android:textSize="14sp"
+		        android:text="SL" />
+		    
+		    <View style="@style/horizontal_split_3dp" />
+		    
+		    <TextView android:id="@+id/action"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="7"
+		        android:layout_gravity="center_vertical"
+		        android:textSize="14sp"
+		        android:text="Tag Matching is inventoried→A\nTag Not-Matching is inventoried→B" />
+		    	        	        
+	    </LinearLayout>
+	    
+	    <LinearLayout
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+	        android:orientation="horizontal" >
+		    
+		    <TextView android:id="@+id/bank"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:layout_gravity="center_vertical"
+		        android:textSize="14sp"
+		        android:text="EPC" />
+		    
+		    <View style="@style/horizontal_split_3dp" />
+		    		    
+		    <TextView android:id="@+id/offset"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:layout_gravity="center_vertical"
+		        android:textSize="14sp"
+		        android:text="16 bit" />
+		    
+		    <View style="@style/horizontal_split_3dp" />
+		    			    
+		    <TextView android:id="@+id/length"
+		        android:layout_width="0dp"
+		        android:layout_height="wrap_content"
+		        android:layout_weight="1"
+		        android:layout_gravity="center_vertical"
+		        android:textSize="14sp"
+		        android:text="144 bit" />
+		    	    	        	        
+	    </LinearLayout>
+	    
+	    <TextView android:id="@+id/pattern"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_gravity="center_vertical"
+		    android:textSize="16sp"
+		    android:textStyle="bold"
+	        android:text="30001234567890ABCDEF1234567890ABCDEF" />
+	    	    
+	</LinearLayout>
+    
+</LinearLayout>

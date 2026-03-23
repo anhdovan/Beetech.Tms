@@ -3,23 +3,24 @@
 @inject TmsService TmsService
 @inject DialogService DialogService
 @inject NotificationService NotificationService
+@inject IStringLocalizer<App> L
 
 <RadzenTemplateForm TItem="Category" Data="@Category" Submit="@OnSubmit">
     <RadzenStack Gap="1rem">
-        <RadzenFieldset Text="Category Details">
+        <RadzenFieldset Text="@L["CategoryDetails"]">
             <RadzenStack Gap="1rem">
                 <div class="row">
                     <div class="col-md-4 rz-text-align-right">
-                        <RadzenLabel Text="Name" Component="Name" />
+                        <RadzenLabel Text="@L["Name"]" Component="Name" />
                     </div>
                     <div class="col-md-8">
                         <RadzenTextBox style="display: block; width: 100%;" @bind-Value="@Category.Name" Name="Name" />
-                        <RadzenRequiredValidator Component="Name" Text="Name is required" />
+                        <RadzenRequiredValidator Component="Name" Text="@L["NameRequired"]" />
                     </div>
                 </div>
                 <div class="row">
                     <div class="col-md-4 rz-text-align-right">
-                        <RadzenLabel Text="Description" Component="Description" />
+                        <RadzenLabel Text="@L["Description"]" Component="Description" />
                     </div>
                     <div class="col-md-8">
                         <RadzenTextArea style="display: block; width: 100%;" @bind-Value="@Category.Description" Name="Description" />
@@ -27,7 +28,7 @@
                 </div>
                 <div class="row">
                     <div class="col-md-4 rz-text-align-right">
-                        <RadzenLabel Text="Active" Component="IsActive" />
+                        <RadzenLabel Text="@L["Active"]" Component="IsActive" />
                     </div>
                     <div class="col-md-8">
                         <RadzenCheckBox @bind-Value="@Category.IsActive" Name="IsActive" />
@@ -36,8 +37,8 @@
             </RadzenStack>
         </RadzenFieldset>
         <RadzenStack Orientation="Orientation.Horizontal" JustifyContent="JustifyContent.End" Gap="0.5rem">
-            <RadzenButton ButtonType="ButtonType.Submit" Text="Save" Icon="save" />
-            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="Cancel" Click="@((args) => DialogService.Close(false))" />
+            <RadzenButton ButtonType="ButtonType.Submit" Text="@L["Save"]" Icon="save" />
+            <RadzenButton ButtonStyle="ButtonStyle.Light" Text="@L["Cancel"]" Click="@((args) => DialogService.Close(false))" />
         </RadzenStack>
     </RadzenStack>
 </RadzenTemplateForm>
@@ -50,12 +51,12 @@
         var success = await TmsService.UpsertCategoryAsync(category);
         if (success)
         {
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Category saved successfully" });
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["CategorySaved"] });
             DialogService.Close(true);
         }
         else
         {
-            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = "Error", Detail = "Failed to save category" });
+            NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Error, Summary = L["Error"], Detail = L["FailedSaveCategory"] });
         }
     }
 }

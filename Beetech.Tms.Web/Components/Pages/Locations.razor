@@ -3,12 +3,13 @@
 @inject TmsService TmsService
 @inject NotificationService NotificationService
 @inject DialogService DialogService
+@inject IStringLocalizer<App> L
 
-<PageTitle>Locations - Beetech TMS</PageTitle>
+<PageTitle>@L["Locations"] - Beetech TMS</PageTitle>
 
 <RadzenStack Orientation="Orientation.Horizontal" AlignItems="AlignItems.Center" JustifyContent="JustifyContent.SpaceBetween" class="rz-mb-4">
-    <RadzenText Text="Locations" TextStyle="TextStyle.H4" class="rz-m-0" />
-    <RadzenButton Icon="add_circle_outline" Text="Add Location" Click="@OnAddLocation" />
+    <RadzenText Text="@L["Locations"]" TextStyle="TextStyle.H4" class="rz-m-0" />
+    <RadzenButton Icon="add_circle_outline" Text="@L["AddLocation"]" Click="@OnAddLocation" />
 </RadzenStack>
 
 <RadzenDataGrid @ref="grid" AllowFiltering="true" FilterMode="FilterMode.Advanced" AllowColumnResize="true" AllowAlternatingRows="false"
@@ -17,8 +18,8 @@
                 Data="@locations" TItem="Location" ColumnWidth="300px">
     <Columns>
         <RadzenDataGridColumn Property="Id" Title="ID" Width="80px" />
-        <RadzenDataGridColumn Property="Name" Title="Name" />
-        <RadzenDataGridColumn Title="Actions" Sortable="false" Filterable="false" Width="120px" Frozen="true">
+        <RadzenDataGridColumn Property="Name" Title="@L["Name"]" />
+        <RadzenDataGridColumn Title="@L["Actions"]" Sortable="false" Filterable="false" Width="120px" Frozen="true">
             <Template Context="location">
                 <RadzenStack Orientation="Orientation.Horizontal" Gap="0.5rem">
                     <RadzenButton Icon="edit" ButtonStyle="ButtonStyle.Light" Variant="Variant.Flat" Size="ButtonSize.Medium" 
@@ -52,7 +53,7 @@
 
     async Task EditLocation(Location location)
     {
-        var result = await DialogService.OpenAsync<LocationEditDialog>(location.Id == 0 ? "Add Location" : "Edit Location",
+        var result = await DialogService.OpenAsync<LocationEditDialog>(location.Id == 0 ? L["AddLocation"] : L["EditLocation"],
             new Dictionary<string, object> { { "Location", location } }, new DialogOptions());
 
         if (result == true)
@@ -64,13 +65,13 @@
 
     async Task OnDeleteLocation(Location location)
     {
-        var confirm = await DialogService.Confirm($"Are you sure you want to delete location '{location.Name}'?", "Delete Location");
+        var confirm = await DialogService.Confirm(string.Format(L["ConfirmDeleteLocation"], location.Name), L["DeleteLocation"]);
         if (confirm == true)
         {
             var success = await TmsService.DeleteLocationAsync(location.Id);
             if (success)
             {
-                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = "Success", Detail = "Location deleted" });
+                NotificationService.Notify(new NotificationMessage { Severity = NotificationSeverity.Success, Summary = L["Success"], Detail = L["LocationDeleted"] });
                 await LoadData();
                 if (grid != null) await grid.Reload();
             }
