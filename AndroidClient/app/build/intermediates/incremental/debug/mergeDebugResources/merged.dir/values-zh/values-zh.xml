@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_code_0">执行成功。</string>
+    <string name="error_code_1">未询查到电子标签。</string>
+    <string name="error_code_10">销毁密码不能为全0。</string>
+    <string name="error_code_11">电子标签不支持该命令。</string>
+    <string name="error_code_12">对该命令，访问密码不能为0。</string>
+    <string name="error_code_13">电子标签已经被设置了读保护，不能再次设置。</string>
+    <string name="error_code_14">电子标签没有被设置读保护，不需要解锁。</string>
+    <string name="error_code_16">有字节空间被锁定，写入失败。</string>
+    <string name="error_code_17">不能锁定。</string>
+    <string name="error_code_18">已经锁定，不能再次锁定。</string>
+    <string name="error_code_19">参数保存失败,但设置的值在读写模块断电前有效。</string>
+    <string name="error_code_20">无法调整。</string>
+    <string name="error_code_248">天线检测错误</string>
+    <string name="error_code_249">命令执行出错。</string>
+    <string name="error_code_250">有电子标签，但通信不畅，无法操作。</string>
+    <string name="error_code_251">无电子标签可操作。</string>
+    <string name="error_code_252">存储器锁定，存储位置锁定永久锁定，且不可写入。</string>
+    <string name="error_code_253">命令长度错误。</string>
+    <string name="error_code_254">不合法的命令。</string>
+    <string name="error_code_255">参数错误。</string>
+    <string name="error_code_48">通讯错误。</string>
+    <string name="error_code_5">访问密码错误。</string>
+    <string name="error_code_9">销毁密码错误。</string>
+    <string name="error_code_unknown">未知错误</string>
+</resources>

@@ -18,6 +18,7 @@ import com.google.android.material.materialswitch.MaterialSwitch;
 import beetech.app.core.AdvBaseReader;
 import beetech.tms.android.MainActivity;
 import beetech.tms.android.R;
+import beetech.tms.android.data.sync.SyncManager;
 import beetech.tms.android.utils.SettingsManager;
 
 public class SettingsFragment extends BaseFragment {
@@ -26,7 +27,7 @@ public class SettingsFragment extends BaseFragment {
     private SeekBar sbReaderPower;
     private TextView tvPowerValue;
     private MaterialSwitch switchBeep;
-    private MaterialButton btnSave;
+    private MaterialButton btnSave, btnSync;
 
     @Nullable
     @Override
@@ -43,6 +44,7 @@ public class SettingsFragment extends BaseFragment {
         sbReaderPower = view.findViewById(R.id.sb_reader_power);
         tvPowerValue = view.findViewById(R.id.tv_power_value);
         switchBeep = view.findViewById(R.id.switch_beep);
+        btnSync = view.findViewById(R.id.btn_sync_master_data);
         btnSave = view.findViewById(R.id.btn_save_settings);
 
         loadSettings();
@@ -63,6 +65,34 @@ public class SettingsFragment extends BaseFragment {
         });
 
         btnSave.setOnClickListener(v -> saveSettings());
+        btnSync.setOnClickListener(v -> syncMasterData());
+    }
+
+    private void syncMasterData() {
+        btnSync.setEnabled(false);
+        Toast.makeText(requireContext(), "Đang đồng bộ dữ liệu...", Toast.LENGTH_SHORT).show();
+        
+        new SyncManager(requireContext()).syncMasterData(new SyncManager.SyncCallback() {
+            @Override
+            public void onSyncComplete() {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        btnSync.setEnabled(true);
+                        Toast.makeText(getContext(), "Đồng bộ thành công!", Toast.LENGTH_SHORT).show();
+                    });
+                }
+            }
+
+            @Override
+            public void onSyncError(String error) {
+                if (isAdded()) {
+                    requireActivity().runOnUiThread(() -> {
+                        btnSync.setEnabled(true);
+                        Toast.makeText(getContext(), "Lỗi đồng bộ: " + error, Toast.LENGTH_LONG).show();
+                    });
+                }
+            }
+        });
     }
 
     private void loadSettings() {

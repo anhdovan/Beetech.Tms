@@ -13,12 +13,12 @@ import android.widget.Toast;
 import android.media.AudioManager;
 import android.media.ToneGenerator;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
-
-import com.google.android.material.button.MaterialButton;
+import androidx.room.Room;
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import com.google.gson.Gson;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -31,10 +31,13 @@ import beetech.app.core.dto.TagResult;
 import beetech.tms.android.R;
 import beetech.tms.android.api.TmsApi;
 import beetech.tms.android.api.RetrofitClient;
+import beetech.tms.android.data.local.AppDatabase;
+import beetech.tms.android.data.models.PendingAuditSession;
 import beetech.tms.android.data.models.TextileItem;
 import beetech.tms.android.data.models.StorageLocation;
 import beetech.tms.android.data.models.InventoryAuditSession;
 import beetech.tms.android.data.models.InventoryAuditResult;
+import beetech.tms.android.data.sync.SyncWorker;
 import beetech.tms.android.ui.adapters.AuditResultAdapter;
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -99,45 +102,64 @@ public class InventoryFragment extends BaseFragment {
     }
 
     private void setupLocationSpinner() {
+        // Local-first
+        new Thread(() -> {
+            locationsList = AppDatabase.getDatabase(requireContext()).masterDataDao().getAllLocations();
+            requireActivity().runOnUiThread(() -> {
+                if (!locationsList.isEmpty()) {
+                    updateLocationSpinnerUi(locationsList);
+                }
+            });
+        }).start();
+
         RetrofitClient.getApi().getLocations().enqueue(new Callback<List<StorageLocation>>() {
             @Override
             public void onResponse(Call<List<StorageLocation>> call, Response<List<StorageLocation>> response) {
                 if (response.isSuccessful() && response.body() != null) {
                     locationsList = response.body();
-                    List<String> names = new ArrayList<>();
-                    names.add("-- Chọn vị trí kiểm kê --");
-                    for (StorageLocation loc : locationsList) {
-                        names.add(loc.name);
-                    }
-
-                    ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
-                            android.R.layout.simple_spinner_item, names);
-                    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-                    spinnerLocation.setAdapter(adapter);
-
-                    spinnerLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-                        @Override
-                        public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-                            if (position > 0) {
-                                selectedLocationId = locationsList.get(position - 1).id;
-                                loadExpectedDataForLocation(selectedLocationId);
-                            } else {
-                                selectedLocationId = null;
-                                expectedItems.clear();
-                                updateSummary();
-                            }
-                        }
-
-                        @Override
-                        public void onNothingSelected(AdapterView<?> parent) {}
-                    });
+                    updateLocationSpinnerUi(locationsList);
+                    new Thread(() -> {
+                        AppDatabase.getDatabase(requireContext()).masterDataDao().insertLocations(response.body());
+                    }).start();
                 }
             }
 
             @Override
             public void onFailure(Call<List<StorageLocation>> call, Throwable t) {
-                Toast.makeText(getContext(), "Không thể tải danh sách vị trí", Toast.LENGTH_SHORT).show();
+                if (locationsList.isEmpty()) {
+                    Toast.makeText(getContext(), "Không thể tải danh sách vị trí", Toast.LENGTH_SHORT).show();
+                }
             }
+        });
+    }
+
+    private void updateLocationSpinnerUi(List<StorageLocation> list) {
+        List<String> names = new ArrayList<>();
+        names.add("-- Chọn vị trí kiểm kê --");
+        for (StorageLocation loc : list) {
+            names.add(loc.name);
+        }
+
+        ArrayAdapter<String> adapter = new ArrayAdapter<>(requireContext(),
+                android.R.layout.simple_spinner_item, names);
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        spinnerLocation.setAdapter(adapter);
+
+        spinnerLocation.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+                if (position > 0) {
+                    selectedLocationId = list.get(position - 1).id;
+                    loadExpectedDataForLocation(selectedLocationId);
+                } else {
+                    selectedLocationId = null;
+                    expectedItems.clear();
+                    updateSummary();
+                }
+            }
+
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {}
         });
     }
 
@@ -219,28 +241,38 @@ public class InventoryFragment extends BaseFragment {
     }
 
     private void checkEpcInDatabase(String epc) {
-        RetrofitClient.getApi().getItemByTag(epc).enqueue(new Callback<TextileItem>() {
-            @Override
-            public void onResponse(Call<TextileItem> call, Response<TextileItem> response) {
-                AuditResultAdapter.TagStatus status;
-                String title = "Thẻ lạ";
+        // Local check first
+        new Thread(() -> {
+            TextileItem localItem = AppDatabase.getDatabase(requireContext()).masterDataDao().getItemByEpc(epc);
+            if (localItem != null) {
+                String title = localItem.category + " (" + (localItem.location != null ? localItem.location : "N/A") + ")";
+                addAuditItem(epc, title, AuditResultAdapter.TagStatus.UNEXPECTED);
+            } else {
+                // Try remote
+                RetrofitClient.getApi().getItemByTag(epc).enqueue(new Callback<TextileItem>() {
+                    @Override
+                    public void onResponse(Call<TextileItem> call, Response<TextileItem> response) {
+                        AuditResultAdapter.TagStatus status;
+                        String title = "Thẻ lạ";
 
-                if (response.isSuccessful() && response.body() != null) {
-                    status = AuditResultAdapter.TagStatus.UNEXPECTED;
-                    TextileItem item = response.body();
-                    title = item.category + " (" + (item.location != null ? item.location : "N/A") + ")";
-                } else {
-                    status = AuditResultAdapter.TagStatus.UNKNOWN;
-                }
+                        if (response.isSuccessful() && response.body() != null) {
+                            status = AuditResultAdapter.TagStatus.UNEXPECTED;
+                            TextileItem item = response.body();
+                            title = item.category + " (" + (item.location != null ? item.location : "N/A") + ")";
+                        } else {
+                            status = AuditResultAdapter.TagStatus.UNKNOWN;
+                        }
 
-                addAuditItem(epc, title, status);
+                        addAuditItem(epc, title, status);
+                    }
+
+                    @Override
+                    public void onFailure(Call<TextileItem> call, Throwable t) {
+                        addAuditItem(epc, "Thẻ lạ (Offline)", AuditResultAdapter.TagStatus.UNKNOWN);
+                    }
+                });
             }
-
-            @Override
-            public void onFailure(Call<TextileItem> call, Throwable t) {
-                addAuditItem(epc, "Lỗi kiểm tra thẻ", AuditResultAdapter.TagStatus.UNKNOWN);
-            }
-        });
+        }).start();
     }
 
     private void addAuditItem(String epc, String title, AuditResultAdapter.TagStatus status) {
@@ -328,15 +360,55 @@ public class InventoryFragment extends BaseFragment {
                         if (response.isSuccessful() && response.body() != null) {
                             saveAuditRecords(response.body().id);
                         } else {
-                            Toast.makeText(getContext(), "Lỗi khi lưu phiên kiểm kê", Toast.LENGTH_SHORT).show();
+                            saveInventoryOffline(session);
                         }
                     }
 
                     @Override
                     public void onFailure(Call<InventoryAuditSession> call, Throwable t) {
-                        Toast.makeText(getContext(), "Lỗi kết nối khi lưu", Toast.LENGTH_SHORT).show();
+                        saveInventoryOffline(session);
                     }
                 });
+    }
+
+    private void saveInventoryOffline(InventoryAuditSession session) {
+        new Thread(() -> {
+            List<InventoryAuditResult> records = new ArrayList<>();
+            for (AuditResultAdapter.AuditItem item : auditItems) {
+                records.add(createRecord(0, item));
+            }
+            // Add missing items
+            for (Map.Entry<String, TextileItem> entry : expectedItems.entrySet()) {
+                if (!scannedEpCs.contains(entry.getKey())) {
+                    AuditResultAdapter.AuditItem m = new AuditResultAdapter.AuditItem(
+                        entry.getKey(), entry.getValue().category, entry.getValue().code, AuditResultAdapter.TagStatus.MISSING);
+                    records.add(createRecord(0, m));
+                }
+            }
+
+            PendingAuditSession pas = new PendingAuditSession();
+            pas.locationId = session.locationId;
+            pas.status = session.status;
+            pas.performByName = session.performByName;
+            pas.timestamp = System.currentTimeMillis();
+            pas.recordsJson = new Gson().toJson(records);
+
+            AppDatabase.getDatabase(requireContext()).transactionDao().insertAuditSession(pas);
+
+            // WorkManager
+            Constraints constraints = new Constraints.Builder()
+                    .setRequiredNetworkType(NetworkType.CONNECTED)
+                    .build();
+            OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(SyncWorker.class)
+                    .setConstraints(constraints)
+                    .build();
+            WorkManager.getInstance(requireContext()).enqueue(workRequest);
+
+            requireActivity().runOnUiThread(() -> {
+                Toast.makeText(getContext(), "Đã lưu ngoại tuyến. Sẽ tự động đồng bộ khi có mạng.", Toast.LENGTH_LONG).show();
+                clearResults();
+            });
+        }).start();
     }
 
     private void saveAuditRecords(int sessionId) {
@@ -368,10 +440,8 @@ public class InventoryFragment extends BaseFragment {
                             Toast.makeText(getContext(), "Đã lưu kết quả kiểm kê", Toast.LENGTH_LONG).show();
                             clearResults();
                             if (isAdded() && getActivity() != null) {
-                                com.google.android.material.bottomnavigation.BottomNavigationView bottomNav = getActivity()
-                                        .findViewById(R.id.bottom_navigation);
-                                if (bottomNav != null) {
-                                    bottomNav.setSelectedItemId(R.id.nav_items);
+                                if (getActivity() instanceof beetech.tms.android.MainActivity) {
+                                    ((beetech.tms.android.MainActivity) getActivity()).selectItems(null);
                                 }
                             }
                         } else {

@@ -81,13 +81,30 @@
             android:max="33"
             android:progress="30" />
 
-        <com.google.android.material.materialswitch.MaterialSwitch
-            android:id="@+id/switch_beep"
+        <!-- Sync Section -->
+        <View
             android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOnSurface"
+            android:layout_marginBottom="24dp"
+            android:alpha="0.1" />
+
+        <TextView
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginBottom="8dp"
+            android:text="Đồng bộ dữ liệu"
+            android:textStyle="bold"
+            android:textColor="?attr/colorSecondary" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_sync_master_data"
+            style="@style/Widget.Material3.Button.TonalButton"
+            android:layout_width="match_parent"
+            android:layout_height="56dp"
             android:layout_marginBottom="32dp"
-            android:checked="true"
-            android:text="Âm thanh khi quét (Beep)" />
+            android:text="Đồng bộ danh mục (Master Data)"
+            app:icon="@android:drawable/stat_notify_sync" />
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btn_save_settings"

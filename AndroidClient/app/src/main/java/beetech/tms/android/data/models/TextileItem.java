@@ -1,10 +1,15 @@
 package beetech.tms.android.data.models;
 
+import androidx.room.Entity;
+import androidx.room.PrimaryKey;
+import androidx.room.Ignore;
 import com.google.gson.annotations.SerializedName;
 import java.io.Serializable;
 import beetech.app.core.utils.ChaCha20Util;
 
+@Entity(tableName = "items")
 public class TextileItem implements Serializable {
+    @PrimaryKey
     @SerializedName("id")
     public int id;
     
@@ -29,6 +34,7 @@ public class TextileItem implements Serializable {
     @SerializedName("epc")
     public String epc;
 
+    @Ignore
     private boolean isSelected;
 
     public boolean isSelected() {

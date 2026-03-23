@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:title="Tiếp nhận" android:id="@+id/group_reception">
+        <item android:id="@+id/nav_inbound_laundry" android:title="Nhận đồ bẩn" />
+        <item android:id="@+id/nav_inbound_hotel" android:title="Nhận đồ sạch" />
+    </group>
+
+    <group android:title="Xử lý" android:id="@+id/group_processing">
+        <item android:id="@+id/nav_washing" android:title="Giặt" />
+        <item android:id="@+id/nav_drying" android:title="Sấy" />
+        <item android:id="@+id/nav_ironing" android:title="Là/Ủi" />
+        <item android:id="@+id/nav_folding" android:title="Gấp" />
+    </group>
+
+    <group android:title="Đóng gói &amp; Giao hàng" android:id="@+id/group_dispatch">
+        <item android:id="@+id/nav_packing" android:title="Đóng gói" />
+        <item android:id="@+id/nav_return" android:title="Trả hàng" />
+        <item android:id="@+id/nav_outbound_hotel" android:title="Giao đồ bẩn (Hotel Send)" />
+        <item android:id="@+id/nav_outbound_laundry" android:title="Giao đồ sạch (Laundry Send)" />
+    </group>
+
+    <group android:title="Khác" android:id="@+id/group_other">
+        <item android:id="@+id/nav_internal_transfer" android:title="Chuyển nội bộ" />
+        <item android:id="@+id/nav_condemned" android:title="Hàng hủy" />
+    </group>
+
+    <group android:title="Hệ thống" android:id="@+id/group_system">
+        <item android:id="@+id/nav_audit" android:title="Kiểm kê" />
+        <item android:id="@+id/nav_items" android:title="Danh sách Item" />
+        <item android:id="@+id/nav_tagging" android:title="Quản lý Tag" />
+        <item android:id="@+id/nav_settings" android:title="Cài đặt" />
+    </group>
+</menu>

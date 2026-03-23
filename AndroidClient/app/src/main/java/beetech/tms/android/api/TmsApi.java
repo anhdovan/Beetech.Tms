@@ -43,7 +43,7 @@ public interface TmsApi {
     Call<TextileItem> getItemByTag(@Path("epc") String epc);
 
     @POST("api/mobile/transaction")
-    Call<Map<String, Object>> saveTransaction(@Body MobileTransactionRequest request);
+    Call<Void> saveTransaction(@Body MobileTransactionRequest request);
 
     @POST("api/mobile/inventory/session")
     Call<InventoryAuditSession> saveInventorySession(@Body InventoryAuditSession session);
@@ -81,7 +81,7 @@ public interface TmsApi {
     }
 
     class MobileTransactionRequest {
-        public int type; // TransactionType enum value
+        public String type; // TransactionType enum name
         public Integer fromLocationId;
         public Integer toLocationId;
         public Integer departmentId;

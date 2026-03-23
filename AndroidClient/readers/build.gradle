@@ -40,7 +40,7 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.2.1'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.6.1'
 
-    implementation fileTree(dir: 'libs\\aar', include: ['URFIDLibrary-v2.4.0125.aar'], exclude: [])
+    compileOnly fileTree(dir: 'libs\\aar', include: ['URFIDLibrary-v2.4.0125.aar'], exclude: [])
     implementation fileTree(dir: 'libs\\jar', include: [
             //'unitech.jar', '*.jar'
             //,            'unitech.lib.reader_v1.0.0.6.jar'

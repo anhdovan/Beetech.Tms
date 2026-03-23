@@ -11,8 +11,11 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 
+import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.core.view.GravityCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
+import com.google.android.material.navigation.NavigationView;
 import com.google.android.material.appbar.MaterialToolbar;
-import com.google.android.material.bottomnavigation.BottomNavigationView;
 
 import java.util.ArrayList;
 
@@ -130,20 +133,43 @@ public class MainActivity extends BaseActivity {
 
         setupToolbar();
 
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        bottomNav.setOnItemSelectedListener(item -> {
+        DrawerLayout drawer = findViewById(R.id.drawer_layout);
+        NavigationView navView = findViewById(R.id.nav_view);
+        MaterialToolbar toolbar = findViewById(R.id.toolbar);
+        
+        ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(this, drawer, toolbar, R.string.app_name, R.string.app_name);
+        drawer.addDrawerListener(toggle);
+        toggle.syncState();
+
+        navView.setNavigationItemSelectedListener(item -> {
             Fragment fragment = null;
+            Bundle bundle = new Bundle();
             int id = item.getItemId();
+            
             if (id == R.id.nav_items) {
                 fragment = new ItemFragment();
-            } else if (id == R.id.nav_workflow) {
-                fragment = new WorkflowFragment();
             } else if (id == R.id.nav_audit) {
                 fragment = new InventoryFragment();
             } else if (id == R.id.nav_tagging) {
                 fragment = new TagManagementFragment();
             } else if (id == R.id.nav_settings) {
                 fragment = new SettingsFragment();
+            } else {
+                fragment = new WorkflowFragment();
+                if (id == R.id.nav_washing) bundle.putString("OPERATION", "Washing");
+                else if (id == R.id.nav_drying) bundle.putString("OPERATION", "Drying");
+                else if (id == R.id.nav_ironing) bundle.putString("OPERATION", "Ironing");
+                else if (id == R.id.nav_folding) bundle.putString("OPERATION", "Folding");
+                else if (id == R.id.nav_packing) bundle.putString("OPERATION", "Packing");
+                else if (id == R.id.nav_return) bundle.putString("OPERATION", "Return");
+                else if (id == R.id.nav_inbound_laundry) bundle.putString("OPERATION", "LaundryReceive");
+                else if (id == R.id.nav_inbound_hotel) bundle.putString("OPERATION", "Inbound");
+                else if (id == R.id.nav_outbound_hotel) bundle.putString("OPERATION", "Outbound");
+                else if (id == R.id.nav_outbound_laundry) bundle.putString("OPERATION", "LaundrySend");
+                else if (id == R.id.nav_internal_transfer) bundle.putString("OPERATION", "InternalTransfer");
+                else if (id == R.id.nav_condemned) bundle.putString("OPERATION", "Condemned");
+                
+                fragment.setArguments(bundle);
             }
 
             if (fragment != null) {
@@ -151,12 +177,18 @@ public class MainActivity extends BaseActivity {
                         .replace(R.id.fragment_container, fragment)
                         .commit();
             }
+            drawer.closeDrawer(GravityCompat.START);
             return true;
         });
 
         // Default fragment
         if (savedInstanceState == null) {
-            bottomNav.setSelectedItemId(R.id.nav_items);
+            navView.setCheckedItem(R.id.nav_inbound_laundry);
+            Fragment f = new WorkflowFragment();
+            Bundle b = new Bundle();
+            b.putString("OPERATION", "LaundryReceive");
+            f.setArguments(b);
+            getSupportFragmentManager().beginTransaction().replace(R.id.fragment_container, f).commit();
         }
     }
 
@@ -227,8 +259,8 @@ public class MainActivity extends BaseActivity {
     }
 
     public void selectItems(Bundle bundle) {
-        BottomNavigationView bottomNav = findViewById(R.id.bottom_navigation);
-        bottomNav.setSelectedItemId(R.id.nav_items);
+        NavigationView navView = findViewById(R.id.nav_view);
+        navView.setCheckedItem(R.id.nav_items);
         
         ItemFragment fragment = new ItemFragment();
         if (bundle != null) fragment.setArguments(bundle);
